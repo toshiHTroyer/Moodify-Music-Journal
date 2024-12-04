@@ -11,7 +11,6 @@ from dotenv import load_dotenv, dotenv_values
 
 load_dotenv()  # load environment variables from .env file
 
-
 def create_app():
     """
     Create and configure the Flask application.
@@ -42,7 +41,6 @@ def create_app():
         return render_template("index.html")
 
     return app
-
 
 app = create_app()
 
