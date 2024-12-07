@@ -4,17 +4,19 @@ Music journal flask-based web application.
 
 import os
 import datetime
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import pymongo
-#from bson.objectid import ObjectId
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from dotenv import load_dotenv, dotenv_values
 import base64
 import json
 from requests import post
 import certifi
-
+from bson import ObjectId
 
 load_dotenv()  # load environment variables from .env file
+
 
 def create_app():
     """
@@ -23,10 +25,14 @@ def create_app():
     """
 
     app = Flask(__name__)
+    bcrypt = Bcrypt(app)
+    jwt = JWTManager(app)
 
     # load flask config from env variables
     config = dotenv_values()
     app.config.from_mapping(config)
+
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "your_jwt_secret_key")
 
     cxn = pymongo.MongoClient(os.getenv("MONGO_URI"), tlsCAFile=certifi.where())
     db = cxn[os.getenv("MONGO_DBNAME")]
@@ -57,7 +63,7 @@ def create_app():
         token = json_res["access_token"]
 
         return token
-    
+
     token = get_token()
     print("Access Token:")
     print(token)
@@ -75,12 +81,86 @@ def create_app():
     def spotify():
         return
 
+    # Authentication routes
+
+    @app.route("/api/auth/signup", methods=["POST"])
+    def signup():
+        """
+        Handles user signup.
+        Expects JSON payload: { "username": "example", "email": "example@mail.com", "password": "password123" }
+        """
+        data = request.get_json()
+        username = data.get("username")
+        email = data.get("email")
+        password = data.get("password")
+
+        if not username or not email or not password:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Check if user already exists
+        if db.users.find_one({"email": email}):
+            return jsonify({"error": "User already exists"}), 400
+
+        # Hash the password and save the user
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+        user = {"username": username, "email": email, "password": hashed_password}
+        db.users.insert_one(user)
+
+        return jsonify({"message": "User registered successfully"}), 201
+
+    @app.route("/api/auth/login", methods=["POST"])
+    def login():
+        """
+        Handles user login.
+        Expects JSON payload: { "email": "example@mail.com", "password": "password123" }
+        """
+        data = request.get_json()
+        email = data.get("email")
+        password = data.get("password")
+
+        user = db.users.find_one({"email": email})
+        if not user or not bcrypt.check_password_hash(user["password"], password):
+            return jsonify({"error": "Invalid credentials"}), 401
+
+        # Generate a JWT token
+        token = create_access_token(identity=str(user["_id"]))
+        return jsonify({"token": token}), 200
+
+    @app.route("/api/auth/logout", methods=["POST"])
+    @jwt_required()
+    def logout():
+        """
+        Handles user logout (optional for stateless JWT).
+        """
+        return jsonify({"message": "Logged out"}), 200
+
+    @app.route("/api/home", methods=["GET"])
+    @jwt_required()
+    def user_home():
+        """
+        Home page that displays user profile and journal data.
+        """
+        user_id = get_jwt_identity()
+        user = db.users.find_one({"_id": ObjectId(user_id)})  # 修改为 ObjectId
+
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        # Example profile and journal data
+        profile = {
+            "username": user["username"],
+            "email": user["email"],
+            "journal_graph": {"entries": 10, "sentiments": [3, 4, 5, 3]},
+            "playlists": ["Rock Classics", "Jazz Vibes", "Top Hits"]
+        }
+
+        return jsonify(profile), 200
+
     return app
+
 
 app = create_app()
 
 if __name__ == "__main__":
     FLASK_PORT = os.getenv("FLASK_PORT", "5000")
-    #FLASK_ENV = os.getenv("FLASK_ENV")
-
-    app.run(port=FLASK_PORT)
+    app.run(port=FLASK_PORT, debug=True)  # Enable debug mode
