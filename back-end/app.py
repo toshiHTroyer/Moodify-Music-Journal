@@ -3,11 +3,17 @@ Music journal flask-based web application.
 """
 
 import os
-import datetime
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, flash, redirect, url_for
 import pymongo
+from flask_login import (
+    LoginManager,
+    UserMixin,
+    login_user,
+    login_required,
+    current_user,
+    logout_user,
+)
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from dotenv import load_dotenv, dotenv_values
 import base64
 import json
@@ -17,6 +23,9 @@ from bson import ObjectId
 
 load_dotenv()  # load environment variables from .env file
 
+class User(UserMixin):
+    def __init__(self, user_id):
+        self.id = user_id
 
 def create_app():
     """
@@ -26,13 +35,11 @@ def create_app():
 
     app = Flask(__name__)
     bcrypt = Bcrypt(app)
-    jwt = JWTManager(app)
 
     # load flask config from env variables
     config = dotenv_values()
     app.config.from_mapping(config)
-
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "your_jwt_secret_key")
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret_key')
 
     cxn = pymongo.MongoClient(os.getenv("MONGO_URI"), tlsCAFile=certifi.where())
     db = cxn[os.getenv("MONGO_DBNAME")]
@@ -45,6 +52,17 @@ def create_app():
 
     cli_id = os.getenv("CLIENT_ID")
     cli_secret = os.getenv("CLIENT_SECRET")
+
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = "login"
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        user_data = db.users.find_one({"_id": ObjectId(user_id)})
+        if user_data:
+            return User(str(user_data["_id"]))
+        return None
 
     # get spotify api access token
     def get_token():
@@ -61,7 +79,6 @@ def create_app():
         res = post(url, headers=headers, data=data)
         json_res = json.loads(res.content)
         token = json_res["access_token"]
-
         return token
 
     def get_auth_headers(token):
@@ -71,42 +88,32 @@ def create_app():
         url = "https://api.spotify.com/v1/search"
         headers = get_auth_headers(token)
         query = f"q={song_name}&type=track&limit=20"
-
         query_url = url + "?" + query
 
         res = get(query_url, headers=headers)
-        json_res = json.loads(res.content)["tracks"]["items"]
+        json_res = json.loads(res.content).get("tracks", {}).get("items", [])
 
         if len(json_res) == 0:
             return None
-        
         return ','.join([song["id"] for song in json_res])
 
     def get_songs(token, song_ids):
+        if not song_ids:
+            return []
         url = f"https://api.spotify.com/v1/tracks?ids={song_ids}"
-        print(url)
         headers = get_auth_headers(token)
-
         res = get(url, headers=headers)
         json_res = json.loads(res.content)["tracks"]
-
         return json_res
 
     @app.route("/")
-    def login_page():
-        """
-        Route for the home page.
-        Returns:
-            rendered template (str): The rendered HTML template.
-        """
-        return render_template("login.html")
-
+    def index():
+        return redirect(url_for("login"))
 
     @app.route("/home")
     def home_page():
         return render_template("home.html")
     
-
     @app.route("/recommendation")
     def recommendation():
         return render_template("recommendation.html")
@@ -119,100 +126,71 @@ def create_app():
     def entry_submission_page():
         return render_template("entry-submission.html")
 
-    @app.route("/search-songs")
+    @app.route("/search-songs", methods=["GET"])
     def search():
-        # get spotify access token
         token = get_token()
+        song_name = request.args.get("songname", "")
 
-        # get search query from user
-        song_name = request.form["songname"]
+        if not song_name:
+            return render_template("search.html", songs=[])
 
-        # search for song + get ids
         song_ids = search_for_song(token, song_name)
         songs = get_songs(token, song_ids)
-
         return render_template("search.html", songs=songs)
 
     # Authentication routes
-
-    @app.route("/api/auth/signup", methods=["POST"])
+    @app.route("/signup", methods=["GET", "POST"])
     def signup():
-        """
-        Handles user signup.
-        Expects JSON payload: { "username": "example", "email": "example@mail.com", "password": "password123" }
-        """
-        data = request.get_json()
-        username = data.get("username")
-        email = data.get("email")
-        password = data.get("password")
+        if request.method == "POST":
+            username = request.form.get("username")
+            password = request.form.get("password")
 
-        if not username or not email or not password:
-            return jsonify({"error": "Missing required fields"}), 400
+            if not username or not password:
+                flash("Missing required fields", "error")
+                return redirect(url_for("signup"))
 
-        # Check if user already exists
-        if db.users.find_one({"email": email}):
-            return jsonify({"error": "User already exists"}), 400
+            # Check if user already exists
+            if db.users.find_one({"username": username}):
+                flash("User already exists", "error")
+                return redirect(url_for("signup"))
 
-        # Hash the password and save the user
-        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
-        user = {"username": username, "email": email, "password": hashed_password}
-        db.users.insert_one(user)
+            # Hash the password and save the user
+            hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+            user = {"username": username, "password": hashed_password}
+            db.users.insert_one(user)
 
-        return jsonify({"message": "User registered successfully"}), 201
+            flash("User registered successfully!", "success")
+            return redirect(url_for("login"))
 
-    @app.route("/api/auth/login", methods=["POST"])
+        return render_template("signup.html")
+    
+    @app.route("/login", methods=["GET", "POST"])
     def login():
-        """
-        Handles user login.
-        Expects JSON payload: { "email": "example@mail.com", "password": "password123" }
-        """
-        data = request.get_json()
-        email = data.get("email")
-        password = data.get("password")
+        if request.method == "POST":
+            username = request.form.get("username")
+            password = request.form.get("password")
+            user_data = db.users.find_one({"username": username})
 
-        user = db.users.find_one({"email": email})
-        if not user or not bcrypt.check_password_hash(user["password"], password):
-            return jsonify({"error": "Invalid credentials"}), 401
+            if user_data and bcrypt.check_password_hash(user_data["password"], password):
+                user = User(str(user_data["_id"]))
+                login_user(user)
+                return redirect(url_for("home_page"))
 
-        # Generate a JWT token
-        token = create_access_token(identity=str(user["_id"]))
-        return jsonify({"token": token}), 200
+            flash("Invalid username or password.", "error")
 
-    @app.route("/api/auth/logout", methods=["POST"])
-    @jwt_required()
+        return render_template("login.html")
+    
+    @app.route("/logout")
+    @login_required
     def logout():
-        """
-        Handles user logout (optional for stateless JWT).
-        """
-        return jsonify({"message": "Logged out"}), 200
-
-    @app.route("/api/home", methods=["GET"])
-    @jwt_required()
-    def user_home():
-        """
-        Home page that displays user profile and journal data.
-        """
-        user_id = get_jwt_identity()
-        user = db.users.find_one({"_id": ObjectId(user_id)})  # 修改为 ObjectId
-
-        if not user:
-            return jsonify({"error": "User not found"}), 404
-
-        # Example profile and journal data
-        profile = {
-            "username": user["username"],
-            "email": user["email"],
-            "journal_graph": {"entries": 10, "sentiments": [3, 4, 5, 3]},
-            "playlists": ["Rock Classics", "Jazz Vibes", "Top Hits"]
-        }
-
-        return jsonify(profile), 200
+        logout_user()
+        flash("You have been logged out.", "info")
+        return redirect(url_for("login"))
 
     return app
-
 
 app = create_app()
 
 if __name__ == "__main__":
-    FLASK_PORT = os.getenv("FLASK_PORT", "5000")
-    app.run(port=FLASK_PORT, debug=True)  # Enable debug mode
+    port = int(os.getenv('FLASK_PORT', '5000'))
+    app.run(port=port, debug=(os.getenv('FLASK_ENV') == 'development'))

@@ -9,10 +9,11 @@
 <body>
     <div class="container">
         <div class="top-section">
-            <h1>USERNAME</h1>
+            <!-- If current_user is available (Flask-Login), display their username -->
+            <h1>{{ current_user.username if current_user.is_authenticated else "USERNAME" }}</h1>
             <div class="top-actions">
-                <span class="logout" onclick="location.href='/logout'">log out</span>
-                <button onclick="location.href='/recommendation'">RECOM</button>
+                <a class="logout" href="{{ url_for('logout') }}">log out</a>
+                <a class="button" href="{{ url_for('recommendation') }}">RECOM</a>
             </div>
         </div>
         <div class="graph-section">
@@ -31,8 +32,8 @@
                 <p>MOOD: Excited</p>
                 <button>Edit</button>
             </div>
-            <!-- Add more entries as needed -->
-            <button class="button" onclick="location.href='/entry'">new</button>
+            <!-- Repeat entry blocks as needed -->
+            <a class="button" href="{{ url_for('entry_page') }}">new</a>
         </div>
     </div>
 </body>
