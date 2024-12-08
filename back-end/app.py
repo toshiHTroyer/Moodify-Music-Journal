@@ -93,13 +93,31 @@ def create_app():
         return json_res
 
     @app.route("/")
-    def home():
+    def login_page():
         """
         Route for the home page.
         Returns:
             rendered template (str): The rendered HTML template.
         """
-        return render_template("index.html")
+        return render_template("login.html")
+
+
+    @app.route("/home")
+    def home_page():
+        return render_template("home.html")
+    
+
+    @app.route("/recommendation")
+    def recommendation():
+        return render_template("recommendation.html")
+    
+    @app.route("/entry")
+    def entry_page():
+        return render_template("entry.html")
+    
+    @app.route("/entry-submission")
+    def entry_submission_page():
+        return render_template("entry-submission.html")
 
     @app.route("/search-songs")
     def search():

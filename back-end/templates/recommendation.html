@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Recommendation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="top-section">
+            <h1>USERNAME</h1>
+            <div class="top-actions">
+                <span class="logout" onclick="location.href='/logout'">log out</span>
+                <button onclick="location.href='/home'">HOME</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="search-section">
+            <select name="recommendations" id="recommendations">
+                <option value="" disabled selected>Select an option</option>
+                <option value="Happy">Happy</option>
+                <option value="Sad">Sad</option>
+                <option value="Angry">Angry</option>
+            </select>
+            <button>search</button>
+        </div>
+
+        <hr>
+
+        <div>
+            <h2>result</h2>
+            <p>nothing so far</p>
+        </div>
+    </main>
+</body>
+</html>

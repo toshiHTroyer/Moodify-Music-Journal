@@ -1,32 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>USERNAME</h1>
-    <button onclick="location.href='/logout'">Log Out</button>
-    <button>RECOM</button>
-    <div>
-        <h2>Graph Placeholder</h2>
-        <!-- Add graph rendering code here -->
-    </div>
-    <div>
-        <p>Top 1 Mood: <span id="topMood">Happy</span></p>
-        <p>Latest Mood: <span id="latestMood">Relaxed</span></p>
-    </div>
-    <div>
-        <h2>Entry History</h2>
-        <div>
-            <p>TIME: 12:00 PM</p>
-            <p>SONG: Example Song</p>
-            <p>MOOD: Excited</p>
-            <button>Edit</button>
+    <div class="container">
+        <div class="top-section">
+            <h1>USERNAME</h1>
+            <div class="top-actions">
+                <span class="logout" onclick="location.href='/logout'">log out</span>
+                <button onclick="location.href='/recommendation'">RECOM</button>
+            </div>
         </div>
-        <!-- Repeatable block for more entries -->
-        <button>New</button>
+        <div class="graph-section">
+            <span>GRAPH</span>
+        </div>
+        <div class="mood-section">
+            <p>TOP 1 mood: <span id="topMood">Happy</span></p>
+            <p>Latest mood: <span id="latestMood">Relaxed</span></p>
+        </div>
+        <div class="entry-history">
+            <h2>Entry History</h2>
+            <div class="entry">
+                <button class="close-btn">X</button>
+                <p>TIME: 12:00 PM</p>
+                <p>SONG: Example Song</p>
+                <p>MOOD: Excited</p>
+                <button>Edit</button>
+            </div>
+            <!-- Add more entries as needed -->
+            <button class="button" onclick="location.href='/entry'">new</button>
+        </div>
     </div>
 </body>
 </html>

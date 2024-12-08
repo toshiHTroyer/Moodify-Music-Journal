@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="top-section">
+            <h1>MOODIFY</h1>
+            <div class="top-actions">
+                <span class="logout" onclick="location.href='/logout'">log out</span>
+                <button onclick="location.href='/home'">HOME</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="content">
+
+        <!-- Search bar section -->
+        <div class="search-section">
+            <input type="text" placeholder="Search..." class="search-input">
+            <button class="search-button">search</button>
+        </div>
+
+        <!-- Results list -->
+        <div class="results-section">
+            <!-- Selected/Highlighted track -->
+            <div class="track highlight">
+                <div class="track-info">
+                    <p class="track-title">song name</p>
+                    <p class="track-artist">musician name</p>
+                </div>
+                <div class="track-icon">
+                    <!-- Use an icon font or background image here -->
+                    <span class="music-note-icon">♪</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Next button -->
+        <div class="action-section">
+            <button class="button" onclick="location.href='/entry-submission'">NEXT</button>
+        </div>
+    </main>
+</body>
+</html>
