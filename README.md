@@ -66,9 +66,7 @@ Create a `.env` file in the root directory with the following content:
 ```
 This .env file will configure the connection to your MongoDB instance.
 
-### **5. MongoDB Setup**
-
-### **6. Run the Flask App**
+### **5. Run the Flask App**
 Once the dependencies and environment variables are set up, you can run the Flask app with the following command:
 
    ```bash 
