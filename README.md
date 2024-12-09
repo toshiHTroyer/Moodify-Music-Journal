@@ -51,21 +51,7 @@ If you wish to run the project in Docker containers:
     npm install
    ```
 
-### **4. Environment Setup**
-Create a `.env` file in the root directory with the following content:
-```env
-   MONGO_DBNAME=codeTarts
-   MONGO_URI=mongodb+srv://codeTarts:codeTarts@codetarts.2h0hc.mongodb.net/?retryWrites=true&w=majority&appName=codeTarts
-   CLIENT_ID='2a9f6bc4387544a68f54ece6d445e615'
-   CLIENT_SECRET='e8ff777cf6db4d82b8e73fce15407b05'
-   FLASK_APP=app.py
-   FLASK_ENV=development
-   FLASK_PORT=5001
-   SECRET_KEY=codeTarts
-```
-This .env file will configure the connection to your MongoDB instance.
-
-### **5. Run the Flask App**
+### **4. Run the Flask App**
 Once the dependencies and environment variables are set up, you can run the Flask app with the following command:
 
    ```bash 
@@ -78,7 +64,7 @@ This will start the application on http://127.0.0.1:5000.
     * Running on http://127.0.0.1:5000 (Press CTRL+C to quit)
    ```
 
-### **6. CI/CD Deployment**
+### **5. CI/CD Deployment**
 
 The application is automatically built and deployed to a DigitalOcean Droplet using GitHub Actions.
 
