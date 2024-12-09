@@ -24,11 +24,13 @@ from bson import ObjectId
 from collections import Counter
 from datetime import datetime as dt
 
-load_dotenv() 
+load_dotenv()
+
 
 class User(UserMixin):
     def __init__(self, user_id):
         self.id = user_id
+
 
 def create_app():
     app = Flask(__name__)
@@ -37,7 +39,7 @@ def create_app():
     # load flask config from env variables
     config = dotenv_values()
     app.config.from_mapping(config)
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret_key')
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "default_secret_key")
 
     cxn = pymongo.MongoClient(os.getenv("MONGO_URI"), tlsCAFile=certifi.where())
     db = cxn[os.getenv("MONGO_DBNAME")]
@@ -71,7 +73,7 @@ def create_app():
             url = "https://accounts.spotify.com/api/token"
             headers = {
                 "Authorization": "Basic " + auth_base64,
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Content-Type": "application/x-www-form-urlencoded",
             }
             data = {"grant_type": "client_credentials"}
             res = post(url, headers=headers, data=data)
@@ -96,8 +98,8 @@ def create_app():
         json_res = json.loads(res.content).get("tracks", {}).get("items", [])
         if len(json_res) == 0:
             return None
-        return ','.join([song["id"] for song in json_res])
-    
+        return ",".join([song["id"] for song in json_res])
+
     def get_songs(token, song_ids):
         if not song_ids:
             return []
@@ -105,15 +107,17 @@ def create_app():
         headers = get_auth_headers(token)
         res = get(url, headers=headers)
         json_res = json.loads(res.content)["tracks"]
-        
+
         songs = []
         for track in json_res:
-            songs.append({
-                "name": track["name"],
-                "artist": track["artists"][0]["name"],
-                "spotify_id": track["id"],
-                "spotify_url": track["external_urls"]["spotify"],
-            })
+            songs.append(
+                {
+                    "name": track["name"],
+                    "artist": track["artists"][0]["name"],
+                    "spotify_id": track["id"],
+                    "spotify_url": track["external_urls"]["spotify"],
+                }
+            )
         return songs
 
     @app.route("/")
@@ -128,7 +132,11 @@ def create_app():
 
         if entries:
             moods = [entry.get("mood", "Unknown mood") for entry in entries]
-            timestamps = [entry.get("created_at").strftime("%Y-%m-%d %H:%M:%S") for entry in entries if entry.get("created_at")]
+            timestamps = [
+                entry.get("created_at").strftime("%Y-%m-%d %H:%M:%S")
+                for entry in entries
+                if entry.get("created_at")
+            ]
             top_mood = Counter(moods).most_common(1)[0][0] if moods else "No data"
             latest_mood = moods[0] if moods else "No data"
         else:
@@ -139,8 +147,12 @@ def create_app():
 
         formatted_entries = [
             {
-                "id": str(entry["_id"]), 
-                "time": entry.get("created_at").strftime("%I:%M %p") if entry.get("created_at") else "Unknown time",
+                "id": str(entry["_id"]),
+                "time": (
+                    entry.get("created_at").strftime("%I:%M %p")
+                    if entry.get("created_at")
+                    else "Unknown time"
+                ),
                 "song": entry.get("track_name", "Unknown song"),
                 "mood": entry.get("mood", "Unknown mood"),
             }
@@ -153,7 +165,7 @@ def create_app():
             moods=moods,
             timestamps=timestamps,
             top_mood=top_mood,
-            latest_mood=latest_mood
+            latest_mood=latest_mood,
         )
 
     @app.route("/entry", methods=["GET", "POST"])
@@ -181,7 +193,7 @@ def create_app():
                 track_id=track_id,
             )
         return redirect(url_for("entry_page"))
-    
+
     @app.route("/save-entry", methods=["POST"])
     @login_required
     def save_entry():
@@ -211,7 +223,9 @@ def create_app():
     @login_required
     def delete_entry(entry_id):
         try:
-            result = db.entries.delete_one({"_id": ObjectId(entry_id), "user_id": current_user.id})
+            result = db.entries.delete_one(
+                {"_id": ObjectId(entry_id), "user_id": current_user.id}
+            )
             if result.deleted_count > 0:
                 flash("Entry deleted successfully!", "success")
             else:
@@ -220,7 +234,7 @@ def create_app():
             print(f"Error deleting entry: {e}")
             flash("An error occurred while deleting the entry.", "error")
         return redirect(url_for("home_page"))
-        
+
     @app.route("/recommendation")
     def recommendation():
         return render_template("recommendation.html")
@@ -262,7 +276,7 @@ def create_app():
             return redirect(url_for("login"))
 
         return render_template("signup.html")
-    
+
     @app.route("/login", methods=["GET", "POST"])
     def login():
         if request.method == "POST":
@@ -270,7 +284,9 @@ def create_app():
             password = request.form.get("password")
             user_data = db.users.find_one({"username": username})
 
-            if user_data and bcrypt.check_password_hash(user_data["password"], password):
+            if user_data and bcrypt.check_password_hash(
+                user_data["password"], password
+            ):
                 user = User(str(user_data["_id"]))
                 login_user(user)
                 return redirect(url_for("home_page"))
@@ -292,7 +308,7 @@ def create_app():
         token = get_token()
         if not token:
             return jsonify({"error": "Failed to get Spotify access token"}), 500
-            
+
         song_name = request.args.get("songname", "")
         if not song_name:
             return jsonify({"tracks": []})
@@ -300,16 +316,16 @@ def create_app():
         try:
             response = get(
                 f"https://api.spotify.com/v1/search?q={song_name}&type=track&limit=12",
-                headers=get_auth_headers(token)
+                headers=get_auth_headers(token),
             )
             if response.status_code != 200:
                 print(f"Search error: {response.content}")
                 return jsonify({"error": "Failed to search songs"}), 400
-                
+
             search_results = response.json()
             tracks = search_results.get("tracks", {}).get("items", [])
             return jsonify({"tracks": tracks})
-            
+
         except Exception as e:
             print(f"Search error: {str(e)}")
             return jsonify({"error": "Failed to search songs"}), 500
@@ -321,19 +337,27 @@ def create_app():
             data = request.get_json()
             playlist = {
                 "user_id": str(current_user.id),
-                "name": data.get("name", f"Playlist - {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}"),
+                "name": data.get(
+                    "name",
+                    f"Playlist - {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}",
+                ),
                 "description": data.get("description", ""),
                 "tracks": data.get("tracks", []),
-                "created_at": dt.now()
+                "created_at": dt.now(),
             }
             result = db.playlists.insert_one(playlist)
-            
+
             flash("Playlist created successfully!", "success")
-            return jsonify({
-                "playlist_id": str(result.inserted_id),
-                "message": "Playlist created successfully"
-            }), 201
-            
+            return (
+                jsonify(
+                    {
+                        "playlist_id": str(result.inserted_id),
+                        "message": "Playlist created successfully",
+                    }
+                ),
+                201,
+            )
+
         except Exception as e:
             print(f"Create playlist error: {str(e)}")
             return jsonify({"error": "Failed to create playlist"}), 500
@@ -342,28 +366,28 @@ def create_app():
     @login_required
     def playlists_page():
         return render_template("playlists.html")
-    
+
     @app.route("/recommendations", methods=["GET"])
     @login_required
     def get_mood_recommendations():
         token = get_token()
         if not token:
             return jsonify({"error": "Failed to get Spotify access token"}), 500
-            
+
         mood = request.args.get("mood", "").lower()
         if not mood:
             return jsonify({"error": "Mood parameter is required"}), 400
-            
+
         try:
             response = get(
-                f"https://api.spotify.com/v1/search?q={mood}&type=track&limit=16", 
-                headers=get_auth_headers(token)
+                f"https://api.spotify.com/v1/search?q={mood}&type=track&limit=16",
+                headers=get_auth_headers(token),
             )
-            
+
             if response.status_code != 200:
                 print(f"Recommendations error: {response.content}")
                 return jsonify({"error": "Failed to get recommendations"}), 400
-                
+
             tracks = response.json().get("tracks", {}).get("items", [])
             return jsonify({"tracks": tracks})
         except Exception as e:
@@ -386,7 +410,9 @@ def create_app():
     @login_required
     def delete_playlist(playlist_id):
         try:
-            result = db.playlists.delete_one({"_id": ObjectId(playlist_id), "user_id": str(current_user.id)})
+            result = db.playlists.delete_one(
+                {"_id": ObjectId(playlist_id), "user_id": str(current_user.id)}
+            )
             if result.deleted_count > 0:
                 flash("Playlist deleted successfully!", "success")
             else:
@@ -398,8 +424,9 @@ def create_app():
 
     return app
 
+
 app = create_app()
 
 if __name__ == "__main__":
-    port = int(os.getenv('FLASK_PORT', '5000'))
-    app.run(port=port, debug=(os.getenv('FLASK_ENV') == 'development'))
+    port = int(os.getenv("FLASK_PORT", "5000"))
+    app.run(port=port, debug=(os.getenv("FLASK_ENV") == "development"))

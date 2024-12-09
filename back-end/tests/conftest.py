@@ -2,6 +2,7 @@ import pytest
 from app import create_app
 import os
 
+
 @pytest.fixture
 def client():
     # Set environment variables for the test database
