@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <div class="top-section">
+            <h1>MOODIFY</h1>
+            <div class="top-actions">
+                <span class="logout" onclick="location.href='/logout'">log out</span>
+                <button onclick="location.href='/home'">HOME</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="content">
+        <!-- Search Form -->
+        <div class="search-section">
+            <form action="{{ url_for('entry_page') }}" method="get">
+                <input type="text" name="songname" placeholder="Search..." class="search-input" required>
+                <button class="search-button" type="submit">search</button>
+            </form>
+        </div>
+
+        <!-- Display Results -->
+        <div class="results-section">
+            <h2>Results:</h2>
+            <ul>
+                {% for song in songs %}
+                    <li class="song-entry">
+                        <div class="song-info">
+                            <p><strong>{{ song['name'] }}</strong> by {{ song['artist'] }}</p>
+                        </div>
+                        <iframe 
+                            src="https://open.spotify.com/embed/track/{{ song['spotify_id'] }}" 
+                            width="300" 
+                            height="80" 
+                            frameborder="0" 
+                            allowtransparency="true" 
+                            allow="encrypted-media">
+                        </iframe>
+                        <form action="{{ url_for('entry_submission_page') }}" method="post" style="margin-top: 10px;">
+                            <input type="hidden" name="track_name" value="{{ song['name'] }}">
+                            <input type="hidden" name="track_artist" value="{{ song['artist'] }}">
+                            <input type="hidden" name="track_id" value="{{ song['spotify_id'] }}">
+                            <button type="submit" class="button">Select</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Search</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="top-section">
+        <h1>Song Search</h1>
+        <div class="top-actions">
+            <span class="logout" onclick="location.href='/logout'">log out</span>
+            <button onclick="location.href='/home'">HOME</button>
+        </div>
+    </div>
+    <div class="content" style="padding:1rem;">
+        <form action="{{ url_for('search') }}" method="get" style="display:flex;gap:0.5rem;">
+            <input type="text" name="songname" placeholder="Search for a song..." class="search-input" required>
+            <button type="submit" class="search-button">Search</button>
+        </form>
+
+        <div class="results-section" style="margin-top:1rem;">
+            {% if songs and songs|length > 0 %}
+                <ul>
+                    {% for song in songs %}
+                        <li>
+                            <p><strong>{{ song['name'] }}</strong> by {{ song['artist'] }}</p>
+                            <iframe 
+                                src="https://open.spotify.com/embed/track/{{ song['spotify_id'] }}" 
+                                width="300" 
+                                height="80" 
+                                frameborder="0" 
+                                allowtransparency="true" 
+                                allow="encrypted-media">
+                            </iframe>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No songs found. Try a different search.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

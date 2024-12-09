@@ -1,0 +1,319 @@
+// Variables
+$black: #111;
+$gray-dark: #222;
+$gray-medium: #333;
+$gray-light: #444;
+$white: #fff;
+$font-family: Arial, sans-serif;
+$max-width: 360px; // Approx. width to match a mobile wireframe
+
+body {
+    color: $white;
+    font-family: $font-family;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: $max-width;
+    background-color: $black; 
+    position: relative;
+}
+
+.header {
+    margin-bottom: 20px;
+    color: #aaa;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.top-section {
+    background-color: $gray-dark;
+    padding: 10px;
+    margin-bottom: 20px;
+
+    h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: bold;
+        color: $white;
+    }
+
+    .top-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 5px;
+
+        button {
+            background-color: $gray-light;
+            color: $white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+
+            &:hover {
+                background-color: darken($gray-light, 10%);
+            }
+        }
+    }
+
+    .logout {
+        font-size: 12px;
+        color: $white;
+        margin-top: 5px;
+        text-decoration: underline;
+        cursor: pointer;
+
+        &:hover {
+            color: lighten($white, 20%);
+        }
+    }
+}
+
+.graph-section {
+    background-color: #999;
+    height: 150px;
+    margin-bottom: 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $white;
+    font-weight: bold;
+    font-size: 16px;
+
+
+    span {
+        position: relative;
+        z-index: 2;
+    }
+}
+
+.search-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.mood-section {
+    background-color: $gray-dark;
+    padding: 10px;
+    margin-bottom: 20px;
+
+    p {
+        margin: 5px 0;
+        color: $white;
+        font-size: 14px;
+    }
+
+    span {
+        font-weight: bold;
+    }
+}
+.results-section {
+    .track  {
+        border:$black 1px solid;
+        display: flex;
+        justify-content:space-around;
+        .music-note-icon{
+            font-size: 50px;
+            width: 30px!important;
+        }
+    }
+    color: $black;
+
+    
+}
+
+.entry-history {
+    background-color: $white;
+    color: $black;
+    padding: 10px;
+    border-radius: 4px;
+
+    h2 {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .entry {
+        background-color: $white;
+        border: 1px solid $black;
+        padding: 10px;
+        margin-bottom: 10px;
+        position: relative;
+
+        p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: $gray-dark;
+            color: $white;
+            border: none;
+            padding: 3px 6px;
+            font-size: 12px;
+            cursor: pointer;
+
+            &:hover {
+                background-color: darken($gray-dark, 10%);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            color: $black;
+            font-weight: bold;
+
+            &:hover {
+                color: red;
+            }
+        }
+    }
+
+    .new-btn {
+        display: block;
+        width: 100%;
+        background-color: $gray-dark;
+        color: $white;
+        border: 1px solid $black;
+        padding: 10px;
+        font-size: 14px;
+        text-align: center;
+        cursor: pointer;
+        margin-top: 10px;
+
+        &:hover {
+            background-color: darken($gray-dark, 10%);
+        }
+    }
+    .playlist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .track-card {
+        background-color: $gray-dark;
+        border-radius: 8px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+    
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    
+        .album-cover {
+            width: 60px;
+            height: 60px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+    
+        .track-info {
+            flex: 1;
+    
+            .track-title {
+                font-weight: bold;
+                margin: 0 0 5px 0;
+            }
+    
+            .track-artist {
+                color: #999;
+                font-size: 0.9em;
+                margin: 0;
+            }
+        }
+    
+        .track-actions {
+            display: flex;
+            gap: 10px;
+        }
+    }
+    
+    .playlist-card {
+        background-color: $gray-dark;
+        border-radius: 8px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    
+        h3 {
+            margin: 0 0 10px 0;
+            color: $white;
+        }
+    
+        .playlist-info {
+            margin-bottom: 15px;
+        }
+    
+        .playlist-tracks {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 10px;
+    
+            .track {
+                padding: 8px;
+                border-bottom: 1px solid $gray-medium;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+    
+                img {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 4px;
+                }
+            }
+        }
+    }
+    
+    .nav-bar {
+        background-color: $gray-dark;
+        padding: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    
+        a {
+            color: $white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+    
+            &:hover {
+                background-color: $gray-medium;
+            }
+    
+            &.active {
+                background-color: $gray-light;
+            }
+        }
+    }
+}

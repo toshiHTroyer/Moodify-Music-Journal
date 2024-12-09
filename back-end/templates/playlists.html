@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Playlists</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <nav class="nav-bar">
+        <a href="/home">Home</a>
+        <a href="/recommendation">Create Playlist</a>
+        <a href="/playlists" class="active">Your Playlists</a>
+    </nav>
+
+    <div class="container">
+        <div id="playlists-container" class="playlist-grid fade-in" style="display:flex;flex-direction:column;gap:1rem;">
+            <!-- Playlists will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        async function loadPlaylists() {
+            try {
+                const container = document.getElementById('playlists-container');
+                container.classList.add('loading');
+                
+                const response = await fetch('/user-playlists');
+                const data = await response.json();
+                
+                if (!data.playlists || data.playlists.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-playlists fade-in" style="text-align:center;">
+                            <h2 style="font-size:1rem;">No playlists yet</h2>
+                            <p style="font-size:0.9rem;">Create your first playlist to get started!</p>
+                            <button onclick="location.href='/recommendation'" class="search-button" style="font-size:0.8rem;">
+                                Create Playlist
+                            </button>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = data.playlists.map(playlist => `
+                    <div class="playlist-card fade-in" style="border:1px solid #444;border-radius:0.5rem;overflow:hidden;">
+                        <div class="playlist-header" style="padding:0.5rem;border-bottom:1px solid #444;display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <h3 class="playlist-title" style="font-size:1rem;">${escapeHtml(playlist.name)}</h3>
+                                <p class="playlist-info" style="font-size:0.8rem;color:#999;">
+                                    ${playlist.tracks.length} songs • ${escapeHtml(playlist.description || '')}
+                                </p>
+                            </div>
+                            <form action="/delete-playlist/${escapeHtml(playlist._id)}" method="post" style="margin:0;">
+                                <button type="submit" class="delete-button" style="font-size:0.8rem;">Delete</button>
+                            </form>
+                        </div>
+                        <div class="playlist-tracks" style="max-height:200px;overflow-y:auto;padding:0.5rem;">
+                            ${playlist.tracks.map(track => `
+                                <div class="playlist-track" style="display:flex;align-items:center;padding:0.5rem 0;gap:0.5rem;border-bottom:1px solid #333;">
+                                    <img src="${track.albumCover || '/static/placeholder.png'}" 
+                                         alt="Album cover"
+                                         style="width:40px;height:40px;object-fit:cover;border-radius:0.25rem;">
+                                    <div class="track-info" style="flex:1;">
+                                        <p class="track-title" style="margin:0;font-size:0.9rem;">${escapeHtml(track.name)}</p>
+                                        <p class="track-artist" style="margin:0;color:#999;font-size:0.8rem;">${escapeHtml(track.artist)}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Load playlists error:', error);
+                document.getElementById('playlists-container').innerHTML = 
+                    '<div class="error-message fade-in" style="text-align:center;">Failed to load playlists</div>';
+            } finally {
+                const container = document.getElementById('playlists-container');
+                container.classList.remove('loading');
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        window.onload = loadPlaylists;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('playlists-container');
+            container.innerHTML = `
+                <div class="loading-indicator" style="text-align:center;">
+                    <div class="loading-spinner" style="margin:0 auto;"></div>
+                    <p style="font-size:0.9rem;">Loading your playlists...</p>
+                </div>`;
+        });
+
+        document.addEventListener('error', function(e) {
+            if (e.target.tagName.toLowerCase() === 'img') {
+                e.target.src = '/static/placeholder.png';
+            }
+        }, true);
+    </script>
+</body>
+</html>
