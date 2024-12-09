@@ -39,9 +39,8 @@ If you wish to run the project in Docker containers:
     After successfully running the Docker container, you can access the application using the following URLs:
 
     - **Home Page**:http://localhost:5001
+    - **deployment**:http://159.89.237.2:5001
 
-3. **Deployment**
-    - **deployment**:http://159.89.237.2:5001/home
 
 ### **3. Dependencies Setup**
 1. Install Python dependencies:
@@ -59,10 +58,14 @@ If you wish to run the project in Docker containers:
 ### **4. Environment Setup**
 Create a `.env` file in the root directory with the following content:
 ```env
-    MONGO_DBNAME=codeTarts
-    MONGO_URI=mongodb+srv://codeTarts:codeTarts@codetarts.2h0hc.mongodb.net/?retryWrites=true&w=majority&appName=codeTarts
-    CLIENT_ID='2a9f6bc4387544a68f54ece6d445e615'
-    CLIENT_SECRET='e8ff777cf6db4d82b8e73fce15407b05'
+   MONGO_DBNAME=codeTarts
+   MONGO_URI=mongodb+srv://codeTarts:codeTarts@codetarts.2h0hc.mongodb.net/?retryWrites=true&w=majority&appName=codeTarts
+   CLIENT_ID='2a9f6bc4387544a68f54ece6d445e615'
+   CLIENT_SECRET='e8ff777cf6db4d82b8e73fce15407b05'
+   FLASK_APP=app.py
+   FLASK_ENV=development
+   FLASK_PORT=5001
+   SECRET_KEY=codeTarts
 ```
 This .env file will configure the connection to your MongoDB instance.
 
@@ -78,3 +81,18 @@ This will start the application on http://127.0.0.1:5000.
    ```bash 
     * Running on http://127.0.0.1:5000 (Press CTRL+C to quit)
    ```
+
+### **6. CI/CD Deployment**
+
+The application is automatically built and deployed to a DigitalOcean Droplet using GitHub Actions.
+
+#### **Steps in CI/CD Workflow**
+1. **Build the Docker Image**: Builds the Flask app as a Docker image.
+2. **Push to Docker Hub**: Uploads the image to Docker Hub.
+3. **Deploy on DigitalOcean**: Deploys the Docker container on a DigitalOcean Droplet.
+
+#### **View Deployed Application**
+- Deployed at: [http://159.89.237.2:5001/home](http://159.89.237.2:5001/home)
+
+
+
