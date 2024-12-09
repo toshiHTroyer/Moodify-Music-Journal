@@ -1,0 +1,32 @@
+services:
+  web:
+    build:
+      context: .
+    container_name: flask-app
+    ports:
+      - "5001:5000"  # Expose 5000 from container to 5001 on the host
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: development
+      FLASK_PORT: 5000
+      SECRET_KEY: codeTarts
+      CLIENT_ID: '2a9f6bc4387544a68f54ece6d445e615'
+      CLIENT_SECRET: 'e8ff777cf6db4d82b8e73fce15407b05'
+      MONGO_DBNAME: codeTarts
+      MONGO_URI: mongodb+srv://codeTarts:codeTarts@codetarts.2h0hc.mongodb.net/?retryWrites=true&w=majority&appName=codeTarts
+    volumes:
+      - .:/app
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo-db
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+
+volumes:
+  mongo_data:

@@ -1,16 +1,18 @@
 [[source]]
+name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-name = "pypi"
 
 [packages]
-pymongo = "*"
 flask = "*"
+pymongo = "*"
+flask-login = "*"
+flask-bcrypt = "*"
 python-dotenv = "*"
 requests = "*"
-certifi = "*"
+dnspython = "*"  # Required for MongoDB Atlas connections
 
 [dev-packages]
 
 [requires]
-python_version = "3.12"
+python_version = "3.10"
