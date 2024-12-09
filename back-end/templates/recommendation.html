@@ -3,37 +3,315 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Recommendation</title>
+    <title>Create Playlist</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <header>
-        <div class="top-section">
-            <h1>USERNAME</h1>
-            <div class="top-actions">
-                <span class="logout" onclick="location.href='/logout'">log out</span>
-                <button onclick="location.href='/home'">HOME</button>
+    <nav class="nav-bar">
+        <a href="/home">Home</a>
+        <a href="/recommendation" class="active">Create Playlist</a>
+        <a href="/playlists">Your Playlists</a>
+    </nav>
+
+    <div class="container">
+        <section class="create-playlist-section fade-in">
+            <h2 style="font-size:1rem;">Create Custom Playlist</h2>
+            <div class="search-section">
+                <input type="text" 
+                       id="song-search" 
+                       placeholder="Search for songs..." 
+                       class="search-input"
+                       onkeypress="if(event.key === 'Enter') searchSongs()">
+                <button onclick="searchSongs()" class="search-button">Search</button>
             </div>
-        </div>
-    </header>
+            
+            <div class="playlist-form fade-in">
+                <input type="text" id="playlist-name" placeholder="Playlist Name" class="search-input">
+                <input type="text" id="playlist-description" placeholder="Playlist Description (optional)" class="search-input">
+            </div>
 
-    <main>
-        <div class="search-section">
-            <select name="recommendations" id="recommendations">
-                <option value="" disabled selected>Select an option</option>
-                <option value="Happy">Happy</option>
-                <option value="Sad">Sad</option>
-                <option value="Angry">Angry</option>
-            </select>
-            <button>search</button>
-        </div>
+            <div id="song-search-results" class="results-section fade-in" style="margin-top:1rem;">
+            </div>
 
-        <hr>
+            <div class="selected-songs-section fade-in" style="margin-top:1rem;">
+                <h3 style="font-size:0.9rem;">Selected Songs <span id="song-count">(0)</span></h3>
+                <div id="selected-songs" class="results-section" style="max-height:200px;overflow:auto;">
+                </div>
+                <button onclick="createPlaylist()" class="search-button" style="margin-top:0.5rem;">Create Playlist</button>
+            </div>
+        </section>
 
-        <div>
-            <h2>result</h2>
-            <p>nothing so far</p>
-        </div>
-    </main>
+        <section class="mood-section fade-in" style="margin-top:2rem;">
+            <h2 style="font-size:1rem;">Get Mood-based Recommendations</h2>
+            <div class="mood-controls" style="display:flex;flex-direction:column;gap:0.5rem;">
+                <select id="mood-select" class="mood-select">
+                    <option value="" disabled selected>Select a mood for your playlist</option>
+                    <option value="happy">Happy</option>
+                    <option value="sad">Sad</option>
+                    <option value="angry">Angry</option>
+                    <option value="relaxed">Relaxed</option>
+                    <option value="energetic">Energetic</option>
+                </select>
+                <input type="text" 
+                       id="mood-playlist-name" 
+                       placeholder="Name your mood playlist (optional)" 
+                       class="search-input">
+                <button onclick="getMoodRecommendations()" class="search-button">Get Recommendations</button>
+            </div>
+
+            <div id="mood-recommendations-results" class="results-section fade-in" style="margin-top:1rem;max-height:300px;overflow:auto;">
+            </div>
+
+            <p style="font-size:0.8rem;margin-top:0.5rem;">Tap a track to select/deselect recommended songs</p>
+
+            <div class="recommendations-actions fade-in" style="display:flex;gap:0.5rem;justify-content:center;margin-top:1rem;">
+                <button onclick="createPlaylistFromAllRecommendations()" class="search-button" style="flex:1;max-width:150px;font-size:0.8rem;">
+                    All Songs
+                </button>
+                <button onclick="createPlaylistFromSelectedRecommendations()" class="search-button" style="flex:1;max-width:150px;font-size:0.8rem;">
+                    Selected Songs
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let selectedSongs = [];
+        let recommendedSongs = [];
+        let lastSearchQuery = '';
+
+        async function searchSongs() {
+            const searchInput = document.getElementById('song-search');
+            const query = searchInput.value.trim();
+            if (!query) {
+                alert('Please enter a search term');
+                return;
+            }
+            lastSearchQuery = query;
+            try {
+                const resultsDiv = document.getElementById('song-search-results');
+                resultsDiv.classList.add('loading');
+                resultsDiv.innerHTML = '<div class="loading-spinner"></div>';
+                const response = await fetch(`/search-songs-json?songname=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                const limitedTracks = data.tracks; 
+                resultsDiv.innerHTML = limitedTracks.length === 0 
+                    ? '<p class="no-results">No songs found</p>'
+                    : limitedTracks.map(track => `
+                        <div class="track-card fade-in" style="position:relative;">
+                            <div class="track-info" style="padding-bottom:1rem;box-sizing:border-box;">
+                                <p class="track-title">${escapeHtml(track.name)}</p>
+                                <p class="track-artist">${escapeHtml(track.artists[0].name)}</p>
+                                <iframe 
+                                    src="https://open.spotify.com/embed/track/${track.id}" 
+                                    width="99%" 
+                                    height="80"
+                                    frameborder="0" 
+                                    allowtransparency="true" 
+                                    allow="encrypted-media"
+                                    style="display:block;margin-top:0.5rem;box-sizing:border-box;">
+                                </iframe>
+                            </div>
+                            <button onclick="addSong(event, '${track.uri}', '${escapeHtml(track.name)}', '${escapeHtml(track.artists[0].name)}', '${track.album.images[0]?.url || '/static/placeholder.png'}', '${escapeHtml(track.album.name)}')" 
+                                    class="search-button" 
+                                    style="font-size:0.8rem;position:absolute;bottom:5px;right:5px;">
+                                Add
+                            </button>
+                        </div>
+                    `).join('');
+                searchInput.value = query;
+            } catch (error) {
+                console.error('Search error:', error);
+                alert('Failed to search songs');
+            } finally {
+                const resultsDiv = document.getElementById('song-search-results');
+                resultsDiv.classList.remove('loading');
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        async function getMoodRecommendations() {
+            try {
+                const mood = document.getElementById('mood-select').value;
+                if (!mood) {
+                    alert('Please select a mood');
+                    return;
+                }
+                const resultsDiv = document.getElementById('mood-recommendations-results');
+                resultsDiv.classList.add('loading');
+                resultsDiv.innerHTML = '<div class="loading-spinner"></div>';
+                const response = await fetch(`/recommendations?mood=${mood}`);
+                const data = await response.json();
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                recommendedSongs = data.tracks.map((track, index) => ({
+                    ...track,
+                    selected: false,
+                    uri: track.uri,
+                    name: track.name,
+                    artist: track.artists[0].name,
+                    albumCover: track.album.images[0]?.url || '/static/placeholder.png',
+                    albumName: track.album.name
+                }));
+                resultsDiv.innerHTML = recommendedSongs.length === 0 
+                    ? '<p class="no-results">No recommendations found</p>'
+                    : recommendedSongs.map((track, i) => `
+                        <div class="track-card small fade-in" 
+                             onclick="toggleRecommendationSelection(${i}, this)"
+                             data-index="${i}" style="cursor:pointer;position:relative;">
+                            <div class="track-info" style="padding-bottom:1rem;box-sizing:border-box;">
+                                <p class="track-title">${escapeHtml(track.name)}</p>
+                                <p class="track-artist">${escapeHtml(track.artist)}</p>
+                                <iframe 
+                                    src="https://open.spotify.com/embed/track/${track.id}" 
+                                    width="99%"
+                                    height="80" 
+                                    frameborder="0" 
+                                    allowtransparency="true" 
+                                    allow="encrypted-media"
+                                    style="display:block;margin-top:0.5rem;box-sizing:border-box;">
+                                </iframe>
+                            </div>
+                        </div>
+                    `).join('');
+            } catch (error) {
+                console.error('Recommendations error:', error);
+                alert('Failed to get recommendations');
+            } finally {
+                const resultsDiv = document.getElementById('mood-recommendations-results');
+                resultsDiv.classList.remove('loading');
+            }
+        }
+
+        function toggleRecommendationSelection(index, element) {
+            if (index >= 0 && index < recommendedSongs.length) {
+                recommendedSongs[index].selected = !recommendedSongs[index].selected;
+                element.classList.toggle('selected');
+            }
+        }
+
+        async function createPlaylistFromAllRecommendations() {
+            if (recommendedSongs.length === 0) {
+                alert('No recommended songs to create a playlist from');
+                return;
+            }
+            const mood = document.getElementById('mood-select').value;
+            const playlistName = document.getElementById('mood-playlist-name').value || 
+                                `${mood.charAt(0).toUpperCase() + mood.slice(1)} Mood Playlist`;
+            await createPlaylistFromTracks(recommendedSongs, playlistName, `Generated from ${recommendedSongs.length} recommended songs`);
+        }
+
+        async function createPlaylistFromSelectedRecommendations() {
+            const selectedTracks = recommendedSongs.filter(track => track.selected);
+            if (selectedTracks.length === 0) {
+                alert('Please select at least one recommended song');
+                return;
+            }
+            const mood = document.getElementById('mood-select').value;
+            const playlistName = document.getElementById('mood-playlist-name').value || 
+                                `Selected ${mood.charAt(0).toUpperCase() + mood.slice(1)} Songs`;
+            await createPlaylistFromTracks(selectedTracks, playlistName, `Generated from selected recommended songs`);
+        }
+
+        async function createPlaylist() {
+            if (selectedSongs.length === 0) {
+                alert('Please select at least one song');
+                return;
+            }
+            const name = document.getElementById('playlist-name').value.trim();
+            if (!name) {
+                alert('Please enter a playlist name');
+                return;
+            }
+            const description = document.getElementById('playlist-description').value;
+            await createPlaylistFromTracks(selectedSongs, name, description);
+        }
+
+        async function createPlaylistFromTracks(tracks, name, description = '') {
+            try {
+                const response = await fetch('/create-playlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description,
+                        tracks: tracks.map(track => ({
+                            uri: track.uri,
+                            name: track.name,
+                            artist: track.artist || track.artists[0].name,
+                            albumCover: track.albumCover || (track.album?.images[0]?.url || '/static/placeholder.png'),
+                            albumName: track.albumName || track.album?.name
+                        }))
+                    })
+                });
+                if (response.ok) {
+                    alert('Playlist created successfully!');
+                    window.location.href = '/playlists';
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'Failed to create playlist');
+                }
+            } catch (error) {
+                console.error('Create playlist error:', error);
+                alert('Failed to create playlist');
+            }
+        }
+
+        function addSong(e, uri, name, artist, albumCover, albumName) {
+            e.stopPropagation();
+            const track = { uri, name, artist, albumCover, albumName };
+            selectedSongs.push(track);
+            updateSelectedSongsUI();
+        }
+
+        function updateSelectedSongsUI() {
+            const selectedContainer = document.getElementById('selected-songs');
+            const countSpan = document.getElementById('song-count');
+            selectedContainer.innerHTML = selectedSongs.map((track, index) => `
+                <div class="track-card fade-in" style="position:relative;">
+                    <img src="${track.albumCover}" 
+                         alt="Album cover" 
+                         class="album-cover" style="width:100%;height:auto;"
+                         loading="lazy">
+                    <div class="track-info">
+                        <p class="track-title">${escapeHtml(track.name)}</p>
+                        <p class="track-artist">${escapeHtml(track.artist)}</p>
+                    </div>
+                    <button onclick="removeSelectedSong(event, ${index})" class="search-button" style="font-size:0.8rem;position:absolute;bottom:5px;right:5px;">
+                        Remove
+                    </button>
+                </div>
+            `).join('');
+            countSpan.textContent = `(${selectedSongs.length})`;
+        }
+
+        function removeSelectedSong(e, index) {
+            e.stopPropagation();
+            selectedSongs.splice(index, 1);
+            updateSelectedSongsUI();
+        }
+
+        document.addEventListener('error', function(e) {
+            if (e.target.tagName.toLowerCase() === 'img') {
+                e.target.src = '/static/placeholder.png';
+            }
+        }, true);
+    </script>
 </body>
 </html>

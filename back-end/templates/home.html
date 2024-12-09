@@ -8,102 +8,95 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- <div class="container"> -->
-        <!-- Top Section -->
-        <div class="top-section">
-            <h1>{{ current_user.username if current_user.is_authenticated else "USERNAME" }}</h1>
-            <div class="top-actions">
-                <a class="logout" href="{{ url_for('logout') }}">log out</a>
-                <a class="button" href="{{ url_for('recommendation') }}">RECOM</a>
-            </div>
+    <div class="top-section">
+        <h1>{{ current_user.username if current_user.is_authenticated else "USERNAME" }}</h1>
+        <div class="top-actions">
+            <a class="logout" href="{{ url_for('logout') }}">log out</a>
+            <a class="button" href="{{ url_for('recommendation') }}">RECOM</a>
         </div>
+    </div>
 
-        <!-- Graph Section -->
-        <div class="graph-section">
-            <h2>Mood Fluctuations</h2>
-            <canvas id="moodChart" width="400" height="200"></canvas>
-        </div>
-        
-        <script>
-            const moods = JSON.parse('{{ moods|tojson|safe }}');
-            const timestamps = JSON.parse('{{ timestamps|tojson|safe }}');
+    <div class="graph-section">
+        <h2>Mood Fluctuations</h2>
+        <canvas id="moodChart" width="400" height="200"></canvas>
+    </div>
+    
+    <script>
+        const moods = JSON.parse('{{ moods|tojson|safe }}');
+        const timestamps = JSON.parse('{{ timestamps|tojson|safe }}');
 
-            const uniqueMoods = [...new Set(moods)];
-            const moodIndexMapping = uniqueMoods.reduce((acc, mood, index) => {
-                acc[mood] = index + 1; // Start indexing from 1
-                return acc;
-            }, {});
+        const uniqueMoods = [...new Set(moods)];
+        const moodIndexMapping = uniqueMoods.reduce((acc, mood, index) => {
+            acc[mood] = index + 1; 
+            return acc;
+        }, {});
 
-            const moodIndices = moods.map(mood => moodIndexMapping[mood] || null);
-            const filteredMoodIndices = moodIndices.filter(index => index !== null);
-            const filteredTimestamps = timestamps.filter((_, index) => moodIndices[index] !== null);
+        const moodIndices = moods.map(mood => moodIndexMapping[mood] || null);
+        const filteredMoodIndices = moodIndices.filter(index => index !== null);
+        const filteredTimestamps = timestamps.filter((_, index) => moodIndices[index] !== null);
 
-            const ctx = document.getElementById('moodChart').getContext('2d');
-            const moodChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: filteredTimestamps,
-                    datasets: [{
-                        label: 'Mood Fluctuations',
-                        data: filteredMoodIndices,
-                        borderColor: "rgba(75, 192, 192, 1)",
-                        backgroundColor: "rgba(75, 192, 192, 0.6)",
-                        borderWidth: 2,
-                        tension: 0.4,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                title: (context) => filteredTimestamps[context[0].dataIndex],
-                                label: (context) => `Mood: ${uniqueMoods[filteredMoodIndices[context.dataIndex] - 1]}`
-                            }
-                        }
-                    },
-                    scales: {
-                        x: { display: false },
-                        y: {
-                            ticks: {
-                                callback: function(value) {
-                                    return uniqueMoods[value - 1] || '';
-                                }
-                            },
-                            title: { display: false }
+        const ctx = document.getElementById('moodChart').getContext('2d');
+        const moodChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: filteredTimestamps,
+                datasets: [{
+                    label: 'Mood Fluctuations',
+                    data: filteredMoodIndices,
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    backgroundColor: "rgba(75, 192, 192, 0.6)",
+                    borderWidth: 2,
+                    tension: 0.4,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: (context) => filteredTimestamps[context[0].dataIndex],
+                            label: (context) => `Mood: ${uniqueMoods[filteredMoodIndices[context.dataIndex] - 1]}`
                         }
                     }
+                },
+                scales: {
+                    x: { display: false },
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return uniqueMoods[value - 1] || '';
+                            }
+                        },
+                        title: { display: false }
+                    }
                 }
-            });
-        </script>
-        
-        <!-- Mood Section -->
-        <div class="mood-section">
-            <p>TOP 1 mood: <span id="topMood">{{ top_mood }}</span></p>
-            <p>Latest mood: <span id="latestMood">{{ latest_mood }}</span></p>
-        </div>
+            }
+        });
+    </script>
+    
+    <div class="mood-section">
+        <p>TOP 1 mood: <span id="topMood">{{ top_mood }}</span></p>
+        <p>Latest mood: <span id="latestMood">{{ latest_mood }}</span></p>
+    </div>
 
-        <!-- Entry History -->
-        <div class="entry-history">
-            <h2>Entry History</h2>
-            <a class="button" href="{{ url_for('entry_page') }}">new</a>
-            {% if entries and entries|length > 0 %}
-                {% for entry in entries %}
-                    <div class="entry">
-                        <p>TIME: {{ entry['time'] }}</p>
-                        <p>SONG: {{ entry['song'] }}</p>
-                        <p>MOOD: {{ entry['mood'] }}</p>
-                        <!-- Delete Button -->
-                        <form action="{{ url_for('delete_entry', entry_id=entry['id']) }}" method="post" style="display: inline;">
-                            <button type="submit" class="delete-button">Delete</button>
-                        </form>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p>No entries found.</p>
-            {% endif %}
-        </div>
-    <!-- </div> -->
+    <div class="entry-history">
+        <h2>Entry History</h2>
+        <a class="button" href="{{ url_for('entry_page') }}">new</a>
+        {% if entries and entries|length > 0 %}
+            {% for entry in entries %}
+                <div class="entry">
+                    <p>TIME: {{ entry['time'] }}</p>
+                    <p>SONG: {{ entry['song'] }}</p>
+                    <p>MOOD: {{ entry['mood'] }}</p>
+                    <form action="{{ url_for('delete_entry', entry_id=entry['id']) }}" method="post" style="display: inline;">
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No entries found.</p>
+        {% endif %}
+    </div>
 </body>
 </html>
