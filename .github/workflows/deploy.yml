@@ -3,9 +3,6 @@ name: Deploy to DigitalOcean Droplet
 on:
   push:
     branches: [main, master]
-  pull_request:
-    types: [opened, closed]
-    branches: [main, master]
 
 jobs:
   deploy:
@@ -16,31 +13,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Log in to Docker Hub
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      # Build and push Docker image
-      - name: Build and push Docker image
+      # Set up SSH key
+      - name: Set up SSH key
         run: |
-          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/moodify:latest -f ./back-end/Dockerfile ./back-end
-          docker push ${{ secrets.DOCKER_USERNAME }}/moodify:latest
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DO_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
 
-      # Deploy to DigitalOcean Droplet
+      # Add server to known_hosts
+      - name: Add server to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.DO_SERVER_IP }} >> ~/.ssh/known_hosts
+
+      # Sync changed files to the server using rsync
+      - name: Sync changed files to server
+        run: |
+          rsync -avz --exclude '.git/' --exclude 'node_modules/' -e "ssh -i ~/.ssh/id_ed25519" ./ root@${{ secrets.DO_SERVER_IP }}:/root/project
+
+      # Deploy and restart Docker services on the server
       - name: Deploy to Droplet
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.DO_SERVER_IP }}
-          username: ${{ secrets.DO_USER }}
+          username: root
           key: ${{ secrets.DO_PRIVATE_KEY }}
           script: |
-            cd ~/project
-            git pull origin main  # Pull the latest changes from the repository
+            cd /root/project
+            git reset --hard
+            git pull origin main
             docker pull ${{ secrets.DOCKER_USERNAME }}/moodify:latest
             docker stop flask-app || true
             docker rm flask-app || true
-            docker-compose -f ~/project/back-end/docker-compose.yml down || true
-            docker-compose -f ~/project/back-end/docker-compose.yml up --build -d
+            docker-compose -f /root/project/back-end/docker-compose.yml down || true
+            docker-compose -f /root/project/back-end/docker-compose.yml up --build -d
