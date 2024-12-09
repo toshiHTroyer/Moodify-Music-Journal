@@ -39,7 +39,6 @@ If you wish to run the project in Docker containers:
     After successfully running the Docker container, you can access the application using the following URLs:
 
     - **Home Page**:http://localhost:5001
-    - **deployment**:http://159.89.237.2:5001
 
 
 ### **3. Dependencies Setup**
@@ -92,7 +91,7 @@ The application is automatically built and deployed to a DigitalOcean Droplet us
 3. **Deploy on DigitalOcean**: Deploys the Docker container on a DigitalOcean Droplet.
 
 #### **View Deployed Application**
-- Deployed at: [http://159.89.237.2:5001/home](http://159.89.237.2:5001/home)
+- Deployed at: [http://159.89.237.2:5001/](http://159.89.237.2:5001/)
 
 
 
