@@ -20,6 +20,7 @@ An exercise to put to practice software development teamwork, subsystem communic
     git clone https://github.com/software-students-fall2024/5-final-codetarts.git
     cd 5-final-codetarts
     ```
+
 ### **2. Docker Setup**
 If you wish to run the project in Docker containers:
 1. **Build the Docker Image**
@@ -78,4 +79,3 @@ This will start the application on http://127.0.0.1:5000.
     ```bash 
      * Running on http://127.0.0.1:5000 (Press CTRL+C to quit)
     ```
-    
