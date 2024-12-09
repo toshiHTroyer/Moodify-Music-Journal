@@ -43,13 +43,17 @@ def test_entry_submission_page(client):
 
 
 def test_signup(client):
-    response = client.post("/signup", data={"username": "testuser", "password": "testpass"})
+    response = client.post(
+        "/signup", data={"username": "testuser", "password": "testpass"}
+    )
     assert response.status_code == 302  # Redirect after signup
 
     response = client.post("/signup", data={"username": "testuser"})
     assert response.status_code == 302
 
-    response = client.post("/signup", data={"username": "testuser", "password": "testpass"})
+    response = client.post(
+        "/signup", data={"username": "testuser", "password": "testpass"}
+    )
     assert response.status_code == 302
 
 
@@ -62,7 +66,9 @@ def test_logout(client):
 
 
 def test_login_invalid_user(client):
-    response = client.post("/login", data={"username": "fakeuser", "password": "fakepass"})
+    response = client.post(
+        "/login", data={"username": "fakeuser", "password": "fakepass"}
+    )
     assert response.status_code == 200
     assert b"Invalid username or password." in response.data
 
@@ -76,12 +82,9 @@ def test_search_songs_no_input(client):
 
 def test_signup_missing_fields(client):
     """测试注册时缺少必填字段的情况。"""
-    response = client.post(
-        "/signup", data={"username": ""}, follow_redirects=True
-    )
-    assert response.status_code == 200  
-    assert b"Missing required fields" in response.data 
-
+    response = client.post("/signup", data={"username": ""}, follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Missing required fields" in response.data
 
 
 def test_login_missing_fields(client):
@@ -89,11 +92,3 @@ def test_login_missing_fields(client):
     response = client.post("/login", data={"username": ""})
     assert response.status_code == 200
     assert b"Invalid username or password." in response.data
-
-
-
-
-
-
-
-
