@@ -4,99 +4,329 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --black: #111;
+            --gray-dark: #222;
+            --gray-medium: #333;
+            --gray-light: #444;
+            --white: #fff;
+            --primary: #1DB954;
+            --pink: #ff7eb9;
+            --pink-light: #ffb3d9;
+            --gradient: linear-gradient(45deg, var(--primary), var(--pink));
+            --transition: all 0.3s ease;
+            --border-color: #444;
+        }
+
+        body {
+            color: var(--white);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--black);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .nav-bar {
+            background-color: var(--gray-dark);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            box-sizing: border-box;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-bar a {
+            color: var(--white);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            border: 1px solid transparent;
+        }
+
+        .nav-bar a:hover,
+        .nav-bar a.active {
+            background-color: var(--primary);
+            border-color: var(--white);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .graph-section {
+            background: var(--gray-dark);
+            margin: 1rem 0;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .graph-section h2 {
+            color: var(--pink);
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        .mood-section {
+            background: var(--gray-medium);
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 100%;
+        }
+
+        .entry-history {
+            background: var(--gray-dark);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .entry-history h2 {
+            color: var(--pink);
+            text-align: center;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .entry {
+            background: var(--gray-medium);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .entry p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        iframe {
+            border-radius: 10px;
+            border: none;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        form {
+            width: 100%;
+        }
+
+        .delete-button {
+            background: var(--pink);
+            color: var(--white);
+            border: none;
+            padding: 0.7rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .delete-button:hover {
+            background: var(--pink-light);
+            box-shadow: 0 4px 10px rgba(255, 118, 185, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .button {
+            background: var(--gradient);
+            color: var(--white);
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 30px;
+            text-align: center;
+            transition: var(--transition);
+            font-size: 1rem;
+            display: block;
+            margin: 0 auto 1.5rem;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            box-shadow: 0 5px 15px rgba(255, 118, 185, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .logout {
+            display: block;
+            background: var(--primary);
+            color: var(--black);
+            text-decoration: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 30px;
+            margin: 2rem auto 1rem;
+            text-align: center;
+            transition: var(--transition);
+            max-width: 150px;
+        }
+
+        .logout:hover {
+            background: var(--pink);
+            color: var(--white);
+        }
+
+        .mood-titles {
+            color: var(--pink);
+            font-weight: bold;
+        }
+
+        .mood-sections {
+            display: flex;
+            margin: auto;
+            flex-direction: row;
+            justify-content: space-evenly;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .entry-history {
+                padding: 1rem;
+            }
+
+            .entry {
+                padding: 1rem;
+            }
+
+            .delete-button {
+                font-size: 0.9rem;
+                padding: 0.6rem;
+            }
+
+            iframe {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="top-section">
-        <h1>{{ current_user.username if current_user.is_authenticated else "USERNAME" }}</h1>
-        <div class="top-actions">
-            <a class="logout" href="{{ url_for('logout') }}">log out</a>
-            <a class="button" href="{{ url_for('recommendation') }}">RECOM</a>
+    <nav class="nav-bar">
+        <a href="/home" class="active">Home</a>
+        <a href="/recommendation">Create Playlist</a>
+        <a href="/playlists">Your Playlists</a>
+    </nav>
+    <div class="container">
+        <div class="graph-section">
+            <h2>Mood Fluctuations</h2>
+            <canvas id="moodChart"></canvas>
         </div>
-    </div>
-
-    <div class="graph-section">
-        <h2>Mood Fluctuations</h2>
-        <canvas id="moodChart" width="400" height="200"></canvas>
-    </div>
-    
-    <script>
-        const moods = JSON.parse('{{ moods|tojson|safe }}');
-        const timestamps = JSON.parse('{{ timestamps|tojson|safe }}');
-
-        const uniqueMoods = [...new Set(moods)];
-        const moodIndexMapping = uniqueMoods.reduce((acc, mood, index) => {
-            acc[mood] = index + 1; 
-            return acc;
-        }, {});
-
-        const moodIndices = moods.map(mood => moodIndexMapping[mood] || null);
-        const filteredMoodIndices = moodIndices.filter(index => index !== null);
-        const filteredTimestamps = timestamps.filter((_, index) => moodIndices[index] !== null);
-
-        const ctx = document.getElementById('moodChart').getContext('2d');
-        const moodChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: filteredTimestamps,
-                datasets: [{
-                    label: 'Mood Fluctuations',
-                    data: filteredMoodIndices,
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    backgroundColor: "rgba(75, 192, 192, 0.6)",
-                    borderWidth: 2,
-                    tension: 0.4,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            title: (context) => filteredTimestamps[context[0].dataIndex],
-                            label: (context) => `Mood: ${uniqueMoods[filteredMoodIndices[context.dataIndex] - 1]}`
+        <script>
+            const moods = JSON.parse('{{ moods|tojson|safe }}');
+            const timestamps = JSON.parse('{{ timestamps|tojson|safe }}');
+            const uniqueMoods = [...new Set(moods)];
+            const moodIndexMapping = uniqueMoods.reduce((acc, mood, index) => {
+                acc[mood] = index + 1; 
+                return acc;
+            }, {});
+            const moodIndices = moods.map(mood => moodIndexMapping[mood] || null);
+            const filteredMoodIndices = moodIndices.filter(index => index !== null);
+            const filteredTimestamps = timestamps.filter((_, index) => moodIndices[index] !== null);
+            const ctx = document.getElementById('moodChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: filteredTimestamps,
+                    datasets: [{
+                        label: 'Mood Fluctuations',
+                        data: filteredMoodIndices,
+                        borderColor: "rgba(75, 192, 192, 1)",
+                        backgroundColor: "rgba(75, 192, 192, 0.6)",
+                        borderWidth: 2,
+                        tension: 0.4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (context) => filteredTimestamps[context[0].dataIndex],
+                                label: (context) => `Mood: ${uniqueMoods[filteredMoodIndices[context.dataIndex] - 1]}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { display: false },
+                        y: {
+                            ticks: {
+                                callback: function(value) {
+                                    return uniqueMoods[value - 1] || '';
+                                }
+                            },
+                            title: { display: false }
                         }
                     }
-                },
-                scales: {
-                    x: { display: false },
-                    y: {
-                        ticks: {
-                            callback: function(value) {
-                                return uniqueMoods[value - 1] || '';
-                            }
-                        },
-                        title: { display: false }
-                    }
                 }
-            }
-        });
-    </script>
-    
-    <div class="mood-section">
-        <p>TOP 1 mood: <span id="topMood">{{ top_mood }}</span></p>
-        <p>Latest mood: <span id="latestMood">{{ latest_mood }}</span></p>
-    </div>
-
-    <div class="entry-history">
-        <h2>Entry History</h2>
-        <a class="button" href="{{ url_for('entry_page') }}">new</a>
-        {% if entries and entries|length > 0 %}
-            {% for entry in entries %}
-                <div class="entry">
-                    <p>TIME: {{ entry['time'] }}</p>
-                    <p>SONG: {{ entry['song'] }}</p>
-                    <p>MOOD: {{ entry['mood'] }}</p>
-                    <form action="{{ url_for('delete_entry', entry_id=entry['id']) }}" method="post" style="display: inline;">
-                        <button type="submit" class="delete-button">Delete</button>
-                    </form>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No entries found.</p>
-        {% endif %}
+            });
+        </script>
+        <div class="mood-sections">
+            <div class="mood-section">
+                <p class="mood-titles">TOP 1 mood</p>
+                <p id="topMood">{{ top_mood }}</p>
+            </div>
+            <div class="mood-section">
+                <p class="mood-titles">Latest mood</p>
+                <p id="latestMood">{{ latest_mood }}</p>
+            </div>
+        </div>
+        <div class="entry-history">
+            <h2>Entry History</h2>
+            <a class="button" href="{{ url_for('entry_page') }}">New Entry</a>
+            {% if entries and entries|length > 0 %}
+                {% for entry in entries %}
+                    <div class="entry">
+                        <p><strong>TIME:</strong> {{ entry['time'] }}</p>
+                        <p><strong>MOOD:</strong> {{ entry['mood'] }}</p>
+                        <iframe 
+                            src="https://open.spotify.com/embed/track/{{ entry['track_id'] }}" 
+                            height="80" 
+                            allowtransparency="true" 
+                            allow="encrypted-media">
+                        </iframe>
+                        <form action="{{ url_for('delete_entry', entry_id=entry['id']) }}" method="post">
+                            <button type="submit" class="delete-button">Delete</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No entries found.</p>
+            {% endif %}
+        </div>
+        <a class="logout" href="{{ url_for('logout') }}">Log Out</a>
     </div>
 </body>
 </html>
