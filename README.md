@@ -29,30 +29,24 @@ If you wish to run the project in Docker containers:
 
     ```bash 
      docker-compose down
-    ```
-
-2.  ```bash 
-     docker-compose down
-    ```
-
-3.  ```bash 
+     docker-compose build
      docker-compose up -d
     ```
 
-4. **Access the Application**
+2. **Access the Application**
     After successfully running the Docker container, you can access the application using the following URLs:
 
     - **Home Page**:
     - **API Endpoint**:
 
 ### **3. Dependencies Setup**
-    Install Python dependencies:
+1. Install Python dependencies:
 
    ```bash 
     pipenv install
    ```
 
-    Install frontend dependencies:
+2. Install frontend dependencies:
 
    ```bash 
     npm install
