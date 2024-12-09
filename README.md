@@ -1,8 +1,5 @@
 [![Deploy to DigitalOcean Droplet](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/deploy.yml/badge.svg)](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/deploy.yml)
 [![log github events](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/event-logger.yml/badge.svg)](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/event-logger.yml)
-# Final Project
-
-An exercise to put to practice software development teamwork, subsystem communication, containers, deployment, and CI/CD pipelines. See [instructions](./instructions.md) for details.
 
 ## **Team Members**
 
@@ -12,7 +9,7 @@ An exercise to put to practice software development teamwork, subsystem communic
 - **Toshi Troyer** (tht4789) [GitHub Profile](https://github.com/toshiHTroyer)
 
 ## **Product Description**
-**Moodify** is a web-based platform designed to help users track their moods through journal entries and explore music that matches or enhances their emotional state. With the ability to search for songs via the SoundCloud API, add moods to entries, and visualize mood fluctuations through interactive graphs, Moodify is a tool that combines self-reflection with music discovery. Additionally, users can create playlists based on their moods, listen to songs to ensure they are the right fit, and manage their journal entries over time.
+**Moodify** is a web-based platform designed to help users track their moods through journal entries and explore music that matches or enhances their emotional state. With the ability to search for songs via the Spotify API, add moods to entries, and visualize mood fluctuations through interactive graphs, Moodify is a tool that combines self-reflection with music discovery. Additionally, users can create playlists based on their moods, listen to songs to ensure they are the right fit, and manage their journal entries over time.
 
 ## **System Setup and Configuration**
 
