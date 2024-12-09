@@ -1,6 +1,3 @@
-Here's the updated Markdown version of your README file:  
-
-```markdown
 [![Deploy to DigitalOcean Droplet](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/deploy.yml/badge.svg)](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/deploy.yml)
 [![log github events](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/event-logger.yml/badge.svg)](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/event-logger.yml)
 
