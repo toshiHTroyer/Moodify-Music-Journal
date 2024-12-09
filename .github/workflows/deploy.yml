@@ -26,7 +26,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t bellinimoon/moodfiy:latest .
+          docker build -t bellinimoon/moodify:latest -f ./back-end/Dockerfile ./back-end
           docker push bellinimoon/moodify:latest
 
       # Deploy to DigitalOcean Droplet
