@@ -1,3 +1,5 @@
+[![Deploy to DigitalOcean Droplet](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/deploy.yml/badge.svg)](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/deploy.yml)
+[![log github events](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/event-logger.yml/badge.svg)](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/event-logger.yml)
 # Final Project
 
 An exercise to put to practice software development teamwork, subsystem communication, containers, deployment, and CI/CD pipelines. See [instructions](./instructions.md) for details.
@@ -36,8 +38,10 @@ If you wish to run the project in Docker containers:
 2. **Access the Application**
     After successfully running the Docker container, you can access the application using the following URLs:
 
-    - **Home Page**:
-    - **API Endpoint**:
+    - **Home Page**:http://localhost:5001
+
+3. **Deployment**
+    - **deployment**:http://159.89.237.2:5001/home
 
 ### **3. Dependencies Setup**
 1. Install Python dependencies:
@@ -62,9 +66,7 @@ Create a `.env` file in the root directory with the following content:
 ```
 This .env file will configure the connection to your MongoDB instance.
 
-### **5. MongoDB Setup**
-
-### **6. Run the Flask App**
+### **5. Run the Flask App**
 Once the dependencies and environment variables are set up, you can run the Flask app with the following command:
 
    ```bash 
