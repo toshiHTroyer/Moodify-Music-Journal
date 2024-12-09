@@ -41,5 +41,5 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/moodify:latest
             docker stop flask-app || true
             docker rm flask-app || true
-            docker-compose -f /path/to/docker-compose.yml down || true
-            docker-compose -f /path/to/docker-compose.yml up --build -d
+            docker-compose -f ~/project/back-end/docker-compose.yml down || true
+            docker-compose -f ~/project/back-end/docker-compose.yml up --build -d
