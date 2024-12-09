@@ -26,8 +26,8 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t <dockerhub_username>/<image_name>:latest .
-          docker push <dockerhub_username>/<image_name>:latest
+          docker build -t bellinimoon/moodfiy:latest .
+          docker push bellinimoon/moodify:latest
 
       # Deploy to DigitalOcean Droplet
       - name: Deploy to Droplet
@@ -37,7 +37,7 @@ jobs:
           username: ${{ secrets.DO_USER }}
           key: ${{ secrets.DO_PRIVATE_KEY }}
           script: |
-            docker pull <dockerhub_username>/<image_name>:latest
+            docker pull bellinimoon/moodify:latest
             docker stop flask-app || true
             docker rm flask-app || true
-            docker run -d --name flask-app -p 80:5000 <dockerhub_username>/<image_name>:latest
+            docker run -d --name flask-app -p 80:5000 bellinimoon/moodify:latest
