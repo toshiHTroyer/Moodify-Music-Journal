@@ -23,7 +23,7 @@ import certifi
 from bson import ObjectId
 from collections import Counter
 
-load_dotenv()  # load environment variables from .env file
+load_dotenv() 
 
 class User(UserMixin):
     def __init__(self, user_id):
