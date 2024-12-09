@@ -45,7 +45,7 @@ If you wish to run the project in Docker containers:
     pipenv install
    ```
 
-2. Install frontend dependencies:
+2. Install frontend dependencies with the command:
 
    ```bash 
     npm install
