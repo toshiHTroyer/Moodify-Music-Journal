@@ -9,6 +9,8 @@ flask = "*"
 python-dotenv = "*"
 requests = "*"
 certifi = "*"
+flask-bcrypt = "*"
+flask-jwt-extended = "*"
 
 [dev-packages]
 
