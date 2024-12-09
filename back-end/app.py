@@ -432,6 +432,7 @@ def create_app():
         formatted_entries = [
             {
                 "id": str(entry["_id"]),
+                "track_id": entry.get("track_id", "Unknown track"),
                 "time": (
                     entry.get("created_at").strftime("%I:%M %p")
                     if entry.get("created_at")
@@ -777,7 +778,6 @@ def create_app():
         return redirect(url_for("playlists_page"))
 
     return app
-
 
 app = create_app()
 

@@ -4,35 +4,176 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Sign Up</title>
+    <style>
+        :root {
+            --black: #111;
+            --gray-dark: #222;
+            --gray-medium: #333;
+            --white: #fff;
+            --primary: #1DB954;
+            --pink: #ff7eb9;
+            --pink-light: #ffb3d9;
+            --gradient: linear-gradient(45deg, var(--primary), var(--pink));
+            --transition: all 0.3s ease;
+            --border-color: #444;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .landing {
+            background: var(--gray-dark);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            width: 70%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .landing h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .landing form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .landing input[type="text"],
+        .landing input[type="password"] {
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: none;
+            background: var(--gray-medium);
+            color: var(--white);
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .landing input[type="text"]:focus,
+        .landing input[type="password"]:focus {
+            background: var(--black);
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 5px var(--primary);
+        }
+
+        .landing input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .landing button {
+            padding: 0.8rem;
+            border-radius: 30px;
+            border: none;
+            background: var(--gradient);
+            color: var(--white);
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+        }
+
+        .landing button:hover {
+            box-shadow: 0 5px 15px rgba(255, 118, 185, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .landing p {
+            margin: 1.5rem 0 0.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .landing a {
+            color: var(--pink);
+            font-weight: bold;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .landing a:hover {
+            color: var(--pink-light);
+            text-shadow: 0 0 5px var(--pink);
+        }
+
+        .flash-messages {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--gray-medium);
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .flash-messages ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .flash-messages li {
+            margin: 0.25rem 0;
+            padding: 0.25rem 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .flash-messages li:last-child {
+            border-bottom: none;
+        }
+
+        .flash-messages .error {
+            color: #f33;
+        }
+
+        .flash-messages .info {
+            color: #3af;
+        }
+
+        .flash-messages .login {
+            color: var(--primary);
+        }
+    </style>
 </head>
 <body>
-    <h1>SIGN UP</h1>
+    <div class="landing">
+        <h1>SIGN UP</h1>
 
-    <!-- Display flashed messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+        <!-- Display flashed messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    <ul>
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
 
-    <form action="{{ url_for('signup') }}" method="post">
-        <div>
-            <label for="username">Username:</label><br>
+        <form action="{{ url_for('signup') }}" method="post">
             <input type="text" id="username" name="username" placeholder="Enter username" required>
-        </div>
-        <br>
-        <div>
-            <label for="password">Password:</label><br>
             <input type="password" id="password" name="password" placeholder="Enter password" required>
-        </div>
-        <br>
-        <button type="submit">Sign Up</button>
-    </form>
+            <button type="submit">Sign Up</button>
+        </form>
 
-    <p>Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
+        <p>Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
+    </div>
 </body>
 </html>
