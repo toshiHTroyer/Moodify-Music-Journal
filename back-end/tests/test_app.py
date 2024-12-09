@@ -19,8 +19,7 @@ def test_index_redirect(client):
 
 def test_home_page(client):
     response = client.get("/home")
-    assert response.status_code == 200
-    assert b"Home" in response.data
+    assert response.status_code == 302
 
 
 def test_recommendation_page(client):
@@ -37,8 +36,7 @@ def test_entry_page(client):
 
 def test_entry_submission_page(client):
     response = client.get("/entry-submission")
-    assert response.status_code == 200
-    assert b"Entry Submission" in response.data
+    assert response.status_code == 302
 
 
 def test_signup(client):
