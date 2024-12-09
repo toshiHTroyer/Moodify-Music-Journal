@@ -218,7 +218,6 @@ def create_app():
                 "alone crying"
                 # Rock/Alternative
                 "indie melancholy",
-                "emo sad",
                 "alt rock emotional",
                 # Singer-Songwriter
                 "acoustic sad",
