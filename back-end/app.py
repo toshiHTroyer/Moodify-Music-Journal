@@ -151,6 +151,7 @@ def create_app():
 
         formatted_entries = [
             {
+                "id": str(entry["_id"]), 
                 "time": entry.get("created_at").strftime("%I:%M %p") if entry.get("created_at") else "Unknown time",
                 "song": entry.get("track_name", "Unknown song"),
                 "mood": entry.get("mood", "Unknown mood"),
@@ -231,7 +232,21 @@ def create_app():
         flash("Entry saved successfully!", "success")
         return redirect(url_for("home_page"))
 
-    
+    @app.route("/delete-entry/<entry_id>", methods=["POST"])
+    @login_required
+    def delete_entry(entry_id):
+        try:
+            print(f"Attempting to delete entry with ID: {entry_id} for user: {current_user.id}")
+            result = db.entries.delete_one({"_id": ObjectId(entry_id), "user_id": current_user.id})
+            if result.deleted_count > 0:
+                flash("Entry deleted successfully!", "success")
+            else:
+                flash("Failed to delete entry or entry not found.", "error")
+        except Exception as e:
+            print(f"Error deleting entry: {e}")
+            flash("An error occurred while deleting the entry.", "error")
+        return redirect(url_for("home_page"))
+ 
 
         
     @app.route("/recommendation")

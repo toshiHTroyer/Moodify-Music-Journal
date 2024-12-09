@@ -27,32 +27,25 @@
         <script>
             const moods = JSON.parse('{{ moods|tojson|safe }}');
             const timestamps = JSON.parse('{{ timestamps|tojson|safe }}');
-        
-            console.log("Moods:", moods);         // Debug: Check moods data
-            console.log("Timestamps:", timestamps); // Debug: Check timestamps data
-        
-            // Map moods to unique indices to prevent duplicates on the Y-axis
+
             const uniqueMoods = [...new Set(moods)];
             const moodIndexMapping = uniqueMoods.reduce((acc, mood, index) => {
                 acc[mood] = index + 1; // Start indexing from 1
                 return acc;
             }, {});
-        
-            // Map moods to numeric indices for the graph
+
             const moodIndices = moods.map(mood => moodIndexMapping[mood] || null);
-        
-            // Filter out invalid data (e.g., moods without a corresponding value)
             const filteredMoodIndices = moodIndices.filter(index => index !== null);
             const filteredTimestamps = timestamps.filter((_, index) => moodIndices[index] !== null);
-        
+
             const ctx = document.getElementById('moodChart').getContext('2d');
             const moodChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: filteredTimestamps, // Filtered X-axis values
+                    labels: filteredTimestamps,
                     datasets: [{
                         label: 'Mood Fluctuations',
-                        data: filteredMoodIndices, // Filtered Y-axis values
+                        data: filteredMoodIndices,
                         borderColor: "rgba(75, 192, 192, 1)",
                         backgroundColor: "rgba(75, 192, 192, 0.6)",
                         borderWidth: 2,
@@ -71,22 +64,19 @@
                         }
                     },
                     scales: {
-                        x: {
-                            display: false // Hide the entire X-axis
-                        },
+                        x: { display: false },
                         y: {
                             ticks: {
                                 callback: function(value) {
-                                    return uniqueMoods[value - 1] || ''; // Only show valid mood strings
+                                    return uniqueMoods[value - 1] || '';
                                 }
                             },
-                            title: { display: false } // Remove Y-axis title
+                            title: { display: false }
                         }
                     }
                 }
             });
         </script>
-        
         
         <!-- Mood Section -->
         <div class="mood-section">
@@ -104,7 +94,10 @@
                         <p>TIME: {{ entry['time'] }}</p>
                         <p>SONG: {{ entry['song'] }}</p>
                         <p>MOOD: {{ entry['mood'] }}</p>
-                        <a href="{{ url_for('entry_page', entry_id=entry['id']) }}" class="edit-button">Edit</a>
+                        <!-- Delete Button -->
+                        <form action="{{ url_for('delete_entry', entry_id=entry['id']) }}" method="post" style="display: inline;">
+                            <button type="submit" class="delete-button">Delete</button>
+                        </form>
                     </div>
                 {% endfor %}
             {% else %}
