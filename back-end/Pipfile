@@ -7,10 +7,12 @@ verify_ssl = true
 flask = "*"
 pymongo = "*"
 flask-login = "*"
-flask-bcrypt = "*"
+flask-bcrypt = "==1.0.1"
 python-dotenv = "*"
 requests = "*"
 dnspython = "*"  # Required for MongoDB Atlas connections
+pytest = "*"
+certifi = "*"
 
 [dev-packages]
 
