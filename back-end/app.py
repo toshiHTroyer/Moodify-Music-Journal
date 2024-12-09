@@ -214,25 +214,21 @@ def create_app():
                 "sad pop ballad",
                 "emotional pop",
                 "heartbreak songs",
+                "breakup lonely"
+                "alone crying"
                 # Rock/Alternative
                 "indie melancholy",
                 "emo sad",
                 "alt rock emotional",
                 # Singer-Songwriter
                 "acoustic sad",
-                "piano melancholic",
                 "folk emotional",
-                # Classical/Instrumental
-                "sad classical",
-                "emotional instrumental",
-                "melancholic score",
                 # R&B/Soul
                 "soul heartbreak",
                 "r&b emotional",
                 "blues sad",
                 # Genre-Specific
                 "sad country",
-                "jazz blues melancholy",
                 "indie folk sad"
             ],
             "angry": [
