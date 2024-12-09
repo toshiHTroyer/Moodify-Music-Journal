@@ -202,13 +202,118 @@ body {
             background-color: darken($gray-dark, 10%);
         }
     }
-
-    .graph-section {
-        text-align: center;
-        margin: 20px 0;
+    .playlist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px;
     }
     
-    #moodChart {
-        margin: 0 auto;
+    .track-card {
+        background-color: $gray-dark;
+        border-radius: 8px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+    
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    
+        .album-cover {
+            width: 60px;
+            height: 60px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+    
+        .track-info {
+            flex: 1;
+    
+            .track-title {
+                font-weight: bold;
+                margin: 0 0 5px 0;
+            }
+    
+            .track-artist {
+                color: #999;
+                font-size: 0.9em;
+                margin: 0;
+            }
+        }
+    
+        .track-actions {
+            display: flex;
+            gap: 10px;
+        }
+    }
+    
+    .playlist-card {
+        background-color: $gray-dark;
+        border-radius: 8px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    
+        h3 {
+            margin: 0 0 10px 0;
+            color: $white;
+        }
+    
+        .playlist-info {
+            margin-bottom: 15px;
+        }
+    
+        .playlist-tracks {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 10px;
+    
+            .track {
+                padding: 8px;
+                border-bottom: 1px solid $gray-medium;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+    
+                img {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 4px;
+                }
+            }
+        }
+    }
+    
+    .nav-bar {
+        background-color: $gray-dark;
+        padding: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    
+        a {
+            color: $white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+    
+            &:hover {
+                background-color: $gray-medium;
+            }
+    
+            &.active {
+                background-color: $gray-light;
+            }
+        }
     }
 }

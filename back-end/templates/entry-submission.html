@@ -25,7 +25,6 @@
                     <p class="track-title">{{ track_name }}</p>
                     <p class="track-artist">{{ track_artist }}</p>
                 </div>
-                <!-- Spotify iframe player -->
                 <iframe 
                     src="https://open.spotify.com/embed/track/{{ track_id }}" 
                     width="300" 
@@ -39,12 +38,10 @@
 
         <!-- Form to Submit the Entry -->
         <form action="{{ url_for('save_entry') }}" method="post" class="submission-form">
-            <!-- Hidden Fields to Pass Song Info -->
             <input type="hidden" name="track_name" value="{{ track_name }}">
             <input type="hidden" name="track_artist" value="{{ track_artist }}">
             <input type="hidden" name="track_id" value="{{ track_id }}">
 
-            <!-- Dropdown for Additional Data (e.g., Mood) -->
             <div class="dropdown-section">
                 <label for="mood">Select Mood:</label>
                 <select name="mood" id="mood" required>
@@ -57,7 +54,6 @@
                 </select>
             </div>
 
-            <!-- Submit Button -->
             <div class="action-section">
                 <button class="button" type="button" onclick="location.href='/entry'">Back</button>
                 <button class="button" type="submit">Submit</button>
