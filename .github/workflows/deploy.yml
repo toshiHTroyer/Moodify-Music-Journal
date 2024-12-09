@@ -2,11 +2,10 @@ name: Deploy to DigitalOcean Droplet
 
 on:
   push:
-    branches:
-      - main
+    branches: [main, master]
   pull_request:
-    branches:
-      - main
+    types: [opened, closed]
+    branches: [main, master]
 
 jobs:
   deploy:
