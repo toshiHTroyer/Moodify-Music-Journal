@@ -1,0 +1,21 @@
+<!-- templates/search.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Songs</title>
+</head>
+<body>
+    <h1>Search Results</h1>
+    <ul>
+        {% if songs %}
+            {% for song in songs %}
+                <li>{{ song['name'] }}</li>
+            {% endfor %}
+        {% else %}
+            <p>No songs found</p>
+        {% endif %}
+    </ul>
+</body>
+</html>
