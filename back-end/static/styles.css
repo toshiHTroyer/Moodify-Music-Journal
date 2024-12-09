@@ -173,4 +173,11 @@ body {
 }
 .entry-history .new-btn:hover {
   background-color: #090909;
+}
+.entry-history .graph-section {
+  text-align: center;
+  margin: 20px 0;
+}
+.entry-history #moodChart {
+  margin: 0 auto;
 }/*# sourceMappingURL=styles.css.map */

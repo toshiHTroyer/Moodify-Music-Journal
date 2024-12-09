@@ -18,36 +18,51 @@
     </header>
 
     <main class="content">
-
-
-
-        <!-- Results list -->
+        <!-- Display the Selected Track -->
         <div class="results-section">
-            <!-- Selected/Highlighted track -->
             <div class="track highlight">
                 <div class="track-info">
-                    <p class="track-title">song name</p>
-                    <p class="track-artist">musician name</p>
+                    <p class="track-title">{{ track_name }}</p>
+                    <p class="track-artist">{{ track_artist }}</p>
                 </div>
-                <div class="track-icon">
-                    <!-- Use an icon font or background image here -->
-                    <span class="music-note-icon">♪</span>
-                </div>
+                <!-- Spotify iframe player -->
+                <iframe 
+                    src="https://open.spotify.com/embed/track/{{ track_id }}" 
+                    width="300" 
+                    height="80" 
+                    frameborder="0" 
+                    allowtransparency="true" 
+                    allow="encrypted-media">
+                </iframe>
+            </div>
+        </div>
+
+        <!-- Form to Submit the Entry -->
+        <form action="{{ url_for('save_entry') }}" method="post" class="submission-form">
+            <!-- Hidden Fields to Pass Song Info -->
+            <input type="hidden" name="track_name" value="{{ track_name }}">
+            <input type="hidden" name="track_artist" value="{{ track_artist }}">
+            <input type="hidden" name="track_id" value="{{ track_id }}">
+
+            <!-- Dropdown for Additional Data (e.g., Mood) -->
+            <div class="dropdown-section">
+                <label for="mood">Select Mood:</label>
+                <select name="mood" id="mood" required>
+                    <option value="" disabled selected>Choose a mood</option>
+                    <option value="Happy">Happy</option>
+                    <option value="Sad">Sad</option>
+                    <option value="Excited">Excited</option>
+                    <option value="Relaxed">Relaxed</option>
+                    <option value="Energetic">Energetic</option>
+                </select>
             </div>
 
-        </div>
-
-        <!-- Search bar section -->
-        <div class="search-section">
-            <input type="text" placeholder="Search..." class="search-input">
-            <button class="search-button">search</button>
-        </div>
-
-        <!-- Next button -->
-        <div class="action-section">
-            <button class="button" onclick="location.href='/entry'">Back</button>
-            <button class="button" onclick="location.href='/home'">Submit</button>
-        </div>
+            <!-- Submit Button -->
+            <div class="action-section">
+                <button class="button" type="button" onclick="location.href='/entry'">Back</button>
+                <button class="button" type="submit">Submit</button>
+            </div>
+        </form>
     </main>
 </body>
 </html>

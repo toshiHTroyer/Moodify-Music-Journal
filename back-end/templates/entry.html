@@ -18,33 +18,46 @@
     </header>
 
     <main class="content">
-
-        <!-- Search bar section -->
+        <!-- Search Form -->
         <div class="search-section">
-            <input type="text" placeholder="Search..." class="search-input">
-            <button class="search-button">search</button>
+            <form action="{{ url_for('entry_page') }}" method="get">
+                <input type="text" name="songname" placeholder="Search..." class="search-input" required>
+                <button class="search-button" type="submit">search</button>
+            </form>
         </div>
 
-        <!-- Results list -->
-        <div class="results-section">
-            <!-- Selected/Highlighted track -->
-            <div class="track highlight">
-                <div class="track-info">
-                    <p class="track-title">song name</p>
-                    <p class="track-artist">musician name</p>
-                </div>
-                <div class="track-icon">
-                    <!-- Use an icon font or background image here -->
-                    <span class="music-note-icon">♪</span>
-                </div>
-            </div>
+        <!-- Display Results -->
+    <div class="results-section">
+        <h2>Results:</h2>
+        <ul>
+            {% for song in songs %}
+                <li class="song-entry">
+                    <div class="song-info">
+                        <p><strong>{{ song['name'] }}</strong> by {{ song['artist'] }}</p>
+                    </div>
+                    <!-- Spotify Embedded Player -->
+                    <iframe 
+                        src="https://open.spotify.com/embed/track/{{ song['spotify_id'] }}" 
+                        width="300" 
+                        height="80" 
+                        frameborder="0" 
+                        allowtransparency="true" 
+                        allow="encrypted-media">
+                    </iframe>
+                    <!-- Select Button -->
+                    <form action="{{ url_for('entry_submission_page') }}" method="post" style="margin-top: 10px;">
+                        <input type="hidden" name="entry_id" value="{{ entry['_id'] if entry else '' }}">
+                        <input type="hidden" name="track_name" value="{{ song['name'] }}">
+                        <input type="hidden" name="track_artist" value="{{ song['artist'] }}">
+                        <input type="hidden" name="track_id" value="{{ song['spotify_id'] }}">
+                        <button type="submit" class="button">Select</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 
-        </div>
-
-        <!-- Next button -->
-        <div class="action-section">
-            <button class="button" onclick="location.href='/entry-submission'">NEXT</button>
-        </div>
+        
     </main>
 </body>
 </html>

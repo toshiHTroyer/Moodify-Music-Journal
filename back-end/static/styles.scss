@@ -202,4 +202,13 @@ body {
             background-color: darken($gray-dark, 10%);
         }
     }
+
+    .graph-section {
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    #moodChart {
+        margin: 0 auto;
+    }
 }

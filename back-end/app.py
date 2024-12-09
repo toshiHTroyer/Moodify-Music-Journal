@@ -3,6 +3,7 @@ Music journal flask-based web application.
 """
 
 import os
+import datetime
 from flask import Flask, render_template, request, flash, redirect, url_for
 import pymongo
 from flask_login import (
@@ -20,6 +21,7 @@ import json
 from requests import post, get
 import certifi
 from bson import ObjectId
+from collections import Counter
 
 load_dotenv()  # load environment variables from .env file
 
@@ -96,7 +98,7 @@ def create_app():
         if len(json_res) == 0:
             return None
         return ','.join([song["id"] for song in json_res])
-
+    
     def get_songs(token, song_ids):
         if not song_ids:
             return []
@@ -104,27 +106,154 @@ def create_app():
         headers = get_auth_headers(token)
         res = get(url, headers=headers)
         json_res = json.loads(res.content)["tracks"]
-        return json_res
+        
+        songs = []
+        for track in json_res:
+            songs.append({
+                "name": track["name"],
+                "artist": track["artists"][0]["name"],
+                "spotify_id": track["id"],  # Spotify track ID for embedding
+                "spotify_url": track["external_urls"]["spotify"],  # Full Spotify link
+            })
+        return songs
+
+
+    # def get_songs(token, song_ids):
+    #     if not song_ids:
+    #         return []
+    #     url = f"https://api.spotify.com/v1/tracks?ids={song_ids}"
+    #     headers = get_auth_headers(token)
+    #     res = get(url, headers=headers)
+    #     json_res = json.loads(res.content)["tracks"]
+    #     return json_res
 
     @app.route("/")
     def index():
         return redirect(url_for("login"))
 
+
     @app.route("/home")
+    @login_required
     def home_page():
-        return render_template("home.html")
+        user_id = current_user.id
+        entries = list(db.entries.find({"user_id": user_id}).sort("created_at", -1))  # Sort by latest entry first
+
+        if entries:
+            moods = [entry.get("mood", "Unknown mood") for entry in entries]
+            timestamps = [entry.get("created_at").strftime("%Y-%m-%d %H:%M:%S") for entry in entries]
+            top_mood = Counter(moods).most_common(1)[0][0]  # Most common mood
+            latest_mood = moods[0]  # Latest mood
+        else:
+            moods = []
+            timestamps = []
+            top_mood = "No data"
+            latest_mood = "No data"
+
+        formatted_entries = [
+            {
+                "id": str(entry["_id"]), 
+                "time": entry.get("created_at").strftime("%I:%M %p") if entry.get("created_at") else "Unknown time",
+                "song": entry.get("track_name", "Unknown song"),
+                "mood": entry.get("mood", "Unknown mood"),
+            }
+            for entry in entries
+        ]
+
+        return render_template(
+            "home.html",
+            entries=formatted_entries,
+            moods=moods,
+            timestamps=timestamps,
+            top_mood=top_mood,
+            latest_mood=latest_mood
+        )
+
+
+
     
+    @app.route("/entry", methods=["GET", "POST"])
+    def entry_page():
+        token = get_token()
+        song_name = request.args.get("songname", "")
+        songs = []
+
+        if song_name:
+            song_ids = search_for_song(token, song_name)
+            if song_ids:
+                songs = get_songs(token, song_ids)  # Includes Spotify track ID
+
+        return render_template("entry.html", songs=songs, searched=song_name)
+
+    @app.route("/entry-submission", methods=["GET", "POST"])
+    def entry_submission_page():
+        if request.method == "POST":
+            # Retrieve song data from the POST request
+            track_name = request.form.get("track_name")
+            track_artist = request.form.get("track_artist")
+            track_id = request.form.get("track_id")
+
+            # Pass the selected song to the template
+            return render_template(
+                "entry-submission.html",
+                track_name=track_name,
+                track_artist=track_artist,
+                track_id=track_id,
+            )
+
+        # Default GET behavior (if accessed without a POST request)
+        return redirect(url_for("entry_page"))
+    
+    @app.route("/save-entry", methods=["POST"])
+    @login_required
+    def save_entry():
+        # Get data from the form submission
+        track_name = request.form.get("track_name")
+        track_artist = request.form.get("track_artist")
+        track_id = request.form.get("track_id")
+        mood = request.form.get("mood")
+
+        if not track_name or not track_artist or not track_id or not mood:
+            flash("All fields are required!", "error")
+            return redirect(url_for("entry_submission_page"))
+
+        # Create the entry data
+        entry = {
+            "user_id": current_user.id,  # Add the user ID here
+            "track_name": track_name,
+            "track_artist": track_artist,
+            "track_id": track_id,
+            "mood": mood,
+            "created_at": datetime.datetime.now(),
+        }
+
+        # Save to database
+        db.entries.insert_one(entry)
+
+        flash("Entry saved successfully!", "success")
+        return redirect(url_for("home_page"))
+
+    @app.route("/delete-entry/<entry_id>", methods=["POST"])
+    @login_required
+    def delete_entry(entry_id):
+        try:
+            print(f"Attempting to delete entry with ID: {entry_id} for user: {current_user.id}")
+            result = db.entries.delete_one({"_id": ObjectId(entry_id), "user_id": current_user.id})
+            if result.deleted_count > 0:
+                flash("Entry deleted successfully!", "success")
+            else:
+                flash("Failed to delete entry or entry not found.", "error")
+        except Exception as e:
+            print(f"Error deleting entry: {e}")
+            flash("An error occurred while deleting the entry.", "error")
+        return redirect(url_for("home_page"))
+ 
+
+        
     @app.route("/recommendation")
     def recommendation():
         return render_template("recommendation.html")
-    
-    @app.route("/entry")
-    def entry_page():
-        return render_template("entry.html")
-    
-    @app.route("/entry-submission")
-    def entry_submission_page():
-        return render_template("entry-submission.html")
+
+
 
     @app.route("/search-songs", methods=["GET"])
     def search():
