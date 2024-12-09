@@ -89,3 +89,8 @@ def test_login_missing_fields(client):
     response = client.post("/login", data={"username": ""})
     assert response.status_code == 200
     assert b"Invalid username or password." in response.data
+
+def test_playlist_page(client):
+    """Test viewing the playlists page."""
+    response = client.get("/playlists")
+    assert response.status_code == 302
