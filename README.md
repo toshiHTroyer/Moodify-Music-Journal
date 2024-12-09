@@ -20,6 +20,7 @@ An exercise to put to practice software development teamwork, subsystem communic
     git clone https://github.com/software-students-fall2024/5-final-codetarts.git
     cd 5-final-codetarts
     ```
+
 ### **2. Docker Setup**
 If you wish to run the project in Docker containers:
 1. **Build the Docker Image**
@@ -30,9 +31,11 @@ If you wish to run the project in Docker containers:
      docker-compose up --build
     ```
 2.**Run the containers**
+
     ```bash 
      docker-compose up
     ```
+
 3. **Access the Application**
     After successfully running the Docker container, you can access the application using the following URLs:
 
@@ -41,13 +44,17 @@ If you wish to run the project in Docker containers:
 
 ### **3. Dependencies Setup**
     Install Python dependencies:
+
     ```bash 
      pipenv install
     ```
+
     Install frontend dependencies:
+
     ```bash 
      npm install
     ```
+
 ### **4. Environment Setup**
 Create a `.env` file in the root directory with the following content:
 ```env
@@ -62,10 +69,13 @@ This .env file will configure the connection to your MongoDB instance.
 
 ### **6. Run the Flask App**
 Once the dependencies and environment variables are set up, you can run the Flask app with the following command:
+
     ```bash 
      python app.py
     ```
+
 This will start the application on http://127.0.0.1:5000. 
+
     ```bash 
      * Running on http://127.0.0.1:5000 (Press CTRL+C to quit)
     ```
