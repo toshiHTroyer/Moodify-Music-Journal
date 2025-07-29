@@ -1,7 +1,8 @@
 [![Deploy to DigitalOcean Droplet](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/deploy.yml/badge.svg)](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/deploy.yml)
 [![log github events](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/event-logger.yml/badge.svg)](https://github.com/software-students-fall2024/5-final-codetarts/actions/workflows/event-logger.yml)
 
-## **Live Site** http://159.89.237.2:5001/home  
+## **Live Site**  
+http://159.89.237.2:5001/home  
 ## **Team Members**
 
 - **Boming Zhang** (bz2196) [GitHub Profile](https://github.com/BomingZhang-coder)
