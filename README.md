@@ -9,8 +9,7 @@ http://159.89.237.2:5001/home
 - **Annabeth Gao** (mg6839) [GitHub Profile](https://github.com/bellinimoon)
 - **Sahar Bueno-Abdala** (sb8249) [GitHub Profile](https://github.com/saharbueno)
 - **Toshi Troyer** (tht4789) [GitHub Profile](https://github.com/toshiHTroyer)
-  
-## **Note:** 
+    
 This was a group project completed for a Software Engineering course.
 I specifically developed the mood-to-song algorithm and the playlist creation functionality, integrating the Spotify API to personalize user experiences based on selected moods.
 
